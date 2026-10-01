@@ -27,6 +27,18 @@ chmod +x ~/.local/bin/market
 
 Prérequis : `curl`, `python3`, `git` (recommandé). `~/.local/bin` doit être dans ton `PATH`.
 
+## Alternative : installer via `npx skills add`
+
+Pas besoin du CLI `market` : le dépôt est compatible avec le gestionnaire de skills de Vercel Labs.
+
+```bash
+npx skills add BlackAngel242/skill-market --list          # voir les skills dispo
+npx skills add BlackAngel242/skill-market --skill uxfix -g -y   # installer un skill (global)
+npx skills add BlackAngel242/skill-market --all -g -y            # tout installer
+```
+
+Note : via `npx skills add`, seuls les fichiers du skill sont copiés. La détection et l'installation automatique des outils requis (`skill.json` → `requires`) reste l'exclusivité de `market install`.
+
 ## Utilisation
 
 ```bash
