@@ -57,5 +57,5 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 
 | Skill | Version | Description |
 |---|---|---|
-| `impeccable` | 1.0.0 | Détecte et corrige l'AI slop dans les interfaces : scan HTML/CSS et playbooks de design. |
+| `uxfix` | 1.0.0 | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | 2.2.0 | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |

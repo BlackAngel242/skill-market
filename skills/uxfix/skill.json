@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"Corrige seul les défauts UI : boucle détecter→corriger→revérifier jusqu'à un score de 99/100. Contrastes, halos, easings, interlettrage, palettes, copy marketing.","name":"uxfix","requires":{"bins":["node"],"npm":["impeccable"]},"version":"1.0.0"}
