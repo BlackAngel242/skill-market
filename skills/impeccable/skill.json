@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"Detecte et corrige l'AI slop dans tes interfaces : scan HTML/CSS (contrastes, palettes IA, buzzwords) et playbooks de design.","name":"impeccable","requires":{"bins":["node","npm"],"npm":["impeccable"]},"version":"1.0.0"}

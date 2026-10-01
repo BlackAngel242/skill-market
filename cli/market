@@ -1,0 +1,272 @@
+#!/usr/bin/env bash
+#
+# market - installe et met à jour des skills depuis le marketplace skill-market.
+#
+#   market list                catalogue distant
+#   market search <mot>        recherche dans le catalogue
+#   market info <skill>        fiche d'un skill
+#   market install <skill>     installe en global (detecte les outils requis)
+#   market upgrade <skill>     met à jour un skill installé
+#   market update              met à jour tous les skills installés
+#   market remove <skill>      désinstalle
+#   market installed           skills installés localement
+#
+# Variables d'environnement :
+#   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
+#   MARKET_BRANCH  branche (défaut : main)
+#   MARKET_HOME    dossier d'installation (défaut : ~/.skill-market)
+#
+set -euo pipefail
+
+REPO="${MARKET_REPO:-BlackAngel242/skill-market}"
+BRANCH="${MARKET_BRANCH:-main}"
+MARKET_HOME="${MARKET_HOME:-$HOME/.skill-market}"
+SKILLS_DIR="$MARKET_HOME/skills"
+INDEX_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/index.json"
+REPO_URL="https://github.com/${REPO}.git"
+
+need() {
+  command -v "$1" >/dev/null 2>&1 || { echo "Outil manquant : '$1'. Installe-le puis relance." >&2; exit 1; }
+}
+
+ask() {
+  # ask "question" -> 0 si oui
+  local prompt="$1"
+  if [ "${ASSUME_YES:-0}" = "1" ]; then return 0; fi
+  read -r -p "$prompt [o/N] " ans
+  [[ "$ans" =~ ^[oOyY]$ ]]
+}
+
+fetch_index() { need curl; curl -fsSL "$INDEX_URL"; }
+
+# usage: skill_field <nom> <champ>  -> imprime le champ du skill dans index.json
+skill_field() {
+  local name="$1" field="$2"
+  fetch_index | python3 -c "
+import json, sys
+for s in json.load(sys.stdin)['skills']:
+    if s['name'] == '$name':
+        print(s.get('$field', ''))
+        break
+"
+}
+
+ver_newer() {
+  # ver_newer <installée> <distante> -> 0 si distante plus récente
+  [ "$1" = "$2" ] && return 1
+  local top; top=$(printf '%s\n%s\n' "$1" "$2" | sort -V | tail -1)
+  [ "$top" = "$2" ]
+}
+
+download_skill() {
+  # download_skill <chemin-dans-le-repo> <dossier-destination>
+  local spath="$1" dest="$2" tmp
+  tmp=$(mktemp -d)
+  if command -v git >/dev/null 2>&1; then
+    git -C "$tmp" clone -q --depth 1 --filter=blob:none --sparse "$REPO_URL" repo
+    git -C "$tmp/repo" sparse-checkout set "$spath" >/dev/null
+    cp -r "$tmp/repo/$spath" "$dest"
+  else
+    need curl; need tar
+    curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz" | tar -xz -C "$tmp"
+    cp -r "$tmp"/skill-market-"$BRANCH"/"$spath" "$dest"
+  fi
+  rm -rf "$tmp"
+}
+
+check_requires() {
+  # check_requires <skill.json> : vérifie les outils, propose d'installer ce qui manque
+  local manifest="$1"
+  need python3
+  local missing
+  missing=$(python3 - "$manifest" <<'EOF'
+import json, shutil, subprocess, sys
+m = json.load(open(sys.argv[1]))
+req = m.get("requires", {})
+out = []
+for b in req.get("bins", []):
+    if shutil.which(b) is None:
+        out.append("bin:" + b)
+npm = req.get("npm", [])
+if npm:
+    if shutil.which("npm") is None:
+        out += ["bin:npm"]
+    else:
+        for p in npm:
+            r = subprocess.run(["npm", "ls", "-g", p], capture_output=True, text=True)
+            if r.returncode != 0:
+                out.append("npm:" + p)
+for p in req.get("pip", []):
+    if shutil.which("pip") is None and shutil.which("pip3") is None:
+        out.append("bin:pip")
+        break
+    r = subprocess.run([shutil.which("pip") or shutil.which("pip3"), "show", p], capture_output=True)
+    if r.returncode != 0:
+        out.append("pip:" + p)
+print("\n".join(out))
+EOF
+)
+  [ -z "$missing" ] && return 0
+  echo "Outils requis manquants :"
+  local kind pkg
+  while IFS= read -r line; do
+    kind="${line%%:*}"; pkg="${line#*:}"
+    case "$kind" in
+      bin)
+        echo "  - binaire '$pkg' : installe-le manuellement (apt, brew...), je ne peux pas deviner la source."
+        echo "Abandon de l'installation."
+        return 1
+        ;;
+      npm)
+        echo "  - paquet npm '$pkg'"
+        if ask "Installer '$pkg' en global avec npm ?"; then
+          npm install -g "$pkg"
+        else
+          echo "Abandon : '$pkg' est requis."
+          return 1
+        fi
+        ;;
+      pip)
+        echo "  - paquet pip '$pkg'"
+        if ask "Installer '$pkg' avec pip ?"; then
+          (command -v pip >/dev/null && pip install "$pkg") || pip3 install "$pkg"
+        else
+          echo "Abandon : '$pkg' est requis."
+          return 1
+        fi
+        ;;
+    esac
+  done <<< "$missing"
+}
+
+write_installed() {
+  local name="$1" version="$2"
+  python3 -c "
+import json, datetime
+json.dump({'name':'$name','version':'$version','installed_at':datetime.date.today().isoformat()}, open('$SKILLS_DIR/$name/installed.json','w'))
+"
+}
+
+do_install() {
+  # do_install <nom> : télécharge, vérifie les outils, copie
+  local name="$1"
+  need python3
+  local version path
+  version=$(skill_field "$name" version)
+  path=$(skill_field "$name" path)
+  [ -n "$version" ] || { echo "Skill '$name' introuvable. Essaie 'market list'." >&2; return 1; }
+
+  if [ -f "$SKILLS_DIR/$name/installed.json" ]; then
+    local iv; iv=$(python3 -c "import json; print(json.load(open('$SKILLS_DIR/$name/installed.json'))['version'])")
+    if [ "$iv" = "$version" ]; then echo "$name $version est déjà installé."; return 0; fi
+    echo "Mise à jour de $name : $iv -> $version"
+  else
+    echo "Installation de $name $version..."
+  fi
+
+  local tmp; tmp=$(mktemp -d)
+  download_skill "$path" "$tmp/pkg"
+  check_requires "$tmp/pkg/skill.json" || { rm -rf "$tmp"; return 1; }
+
+  mkdir -p "$SKILLS_DIR"
+  rm -rf "$SKILLS_DIR/$name"
+  cp -r "$tmp/pkg" "$SKILLS_DIR/$name"
+  rm -rf "$tmp"
+  write_installed "$name" "$version"
+  echo "OK : $name $version installé dans $SKILLS_DIR/$name"
+}
+
+cmd_list() {
+  need python3
+  fetch_index | python3 -c "
+import json, sys
+for s in json.load(sys.stdin)['skills']:
+    print(s['name'] + ' ' + s['version'] + ' - ' + s.get('description',''))
+"
+}
+
+cmd_search() {
+  need python3
+  local q="$1"
+  fetch_index | python3 -c "
+import json, sys
+q = '$q'.lower()
+for s in json.load(sys.stdin)['skills']:
+    blob = (s['name'] + ' ' + s.get('description','')).lower()
+    if q in blob:
+        print(s['name'] + ' ' + s['version'] + ' - ' + s.get('description',''))
+"
+}
+
+cmd_info() {
+  need python3
+  local name="$1"
+  fetch_index | python3 -c "
+import json, sys
+for s in json.load(sys.stdin)['skills']:
+    if s['name'] == '$name':
+        print('Nom         : ' + s['name'])
+        print('Version     : ' + s['version'])
+        print('Auteur      : ' + s.get('author','-'))
+        print('Description : ' + s.get('description','-'))
+        break
+else:
+    sys.exit('Skill introuvable.')
+"
+}
+
+cmd_installed() {
+  [ -d "$SKILLS_DIR" ] || { echo "Aucun skill installé."; return 0; }
+  need python3
+  for d in "$SKILLS_DIR"/*/; do
+    [ -f "$d/installed.json" ] || continue
+    python3 -c "
+import json
+m = json.load(open('$d/installed.json'))
+print(m['name'] + ' ' + m['version'] + ' (installé le ' + m.get('installed_at','?') + ')')
+"
+  done
+}
+
+cmd_update() {
+  need python3
+  [ -d "$SKILLS_DIR" ] || { echo "Aucun skill installé."; return 0; }
+  local idx; idx=$(fetch_index)
+  local n=0
+  for d in "$SKILLS_DIR"/*/; do
+    [ -f "$d/installed.json" ] || continue
+    local name iv rv
+    name=$(basename "$d")
+    iv=$(python3 -c "import json; print(json.load(open('$d/installed.json'))['version'])")
+    rv=$(echo "$idx" | python3 -c "
+import json, sys
+for s in json.load(sys.stdin)['skills']:
+    if s['name'] == '$name': print(s['version']); break
+")
+    if [ -n "$rv" ] && ver_newer "$iv" "$rv"; then
+      do_install "$name" && n=$((n+1))
+    fi
+  done
+  [ "$n" -eq 0 ] && echo "Tout est à jour."
+}
+
+usage() {
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+case "${1:-}" in
+  list)      cmd_list ;;
+  search)    [ $# -ge 2 ] || { echo "Usage : market search <mot>" >&2; exit 1; }; cmd_search "$2" ;;
+  info)      [ $# -ge 2 ] || { echo "Usage : market info <skill>" >&2; exit 1; }; cmd_info "$2" ;;
+  install)   [ $# -ge 2 ] || { echo "Usage : market install <skill> [-y]" >&2; exit 1; };
+             [ "${3:-}" = "-y" ] || [ "${3:-}" = "--yes" ] && ASSUME_YES=1
+             do_install "$2" ;;
+  upgrade)   [ $# -ge 2 ] || { echo "Usage : market upgrade <skill>" >&2; exit 1; }; do_install "$2" ;;
+  update)    cmd_update ;;
+  remove)
+             [ $# -ge 2 ] || { echo "Usage : market remove <skill>" >&2; exit 1; }
+             rm -rf "$SKILLS_DIR/$2" && echo "$2 désinstallé." ;;
+  installed) cmd_installed ;;
+  -h|--help|help|"") usage ;;
+  *) echo "Commande inconnue : $1" >&2; usage >&2; exit 1 ;;
+esac
