@@ -29,7 +29,7 @@ chmod +x ~/.local/bin/market
 
 Prérequis : `curl`, `python3`, `git` (recommandé). `~/.local/bin` doit être dans ton `PATH`.
 
-## Windows
+## Installer le CLI (Windows)
 
 Le CLI existe aussi en PowerShell natif (`cli/market.ps1`), sans WSL ni Git Bash :
 
