@@ -6,7 +6,7 @@ Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI 
 [![Skills](https://img.shields.io/badge/skills-3-blue.svg)](#catalogue)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)](#installer-le-cli)
 
-![Démo du CLI market](assets/demo.gif)
+![Démo du CLI market](assets/demo-powershell.gif)
 
 ## Comment ça marche
 
