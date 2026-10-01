@@ -16,13 +16,13 @@ Prérequis : `curl`, `python3`, `git` (recommandé). `~/.local/bin` doit être d
 ```bash
 market list              # catalogue distant
 market search design     # recherche
-market info impeccable   # fiche détaillée
-market install impeccable        # installe en global, détecte/installe les outils requis
-market install impeccable -y     # sans demander confirmation
-market upgrade impeccable        # met à jour un skill
+market info uxfix        # fiche détaillée
+market install uxfix             # installe en global, détecte/installe les outils requis
+market install uxfix -y          # sans demander confirmation
+market upgrade uxfix             # met à jour un skill
 market update                    # met à jour tout ce qui est installé
 market installed                 # ce qui est installé localement
-market remove impeccable         # désinstalle
+market remove uxfix              # désinstalle
 ```
 
 Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer).
@@ -33,10 +33,10 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 
 ```json
 {
-  "name": "impeccable",
+  "name": "uxfix",
   "version": "1.0.0",
   "requires": {
-    "bins": ["node", "npm"],
+    "bins": ["node"],
     "npm": ["impeccable"],
     "pip": []
   }
