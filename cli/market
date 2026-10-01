@@ -10,6 +10,7 @@
 #   market update              met à jour tous les skills installés
 #   market remove <skill>      désinstalle
 #   market installed           skills installés localement
+#   market publish [chemin]    valide un skill avant soumission (PR)
 #
 # Variables d'environnement :
 #   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
@@ -228,6 +229,138 @@ print(m['name'] + ' ' + m['version'] + ' (installé le ' + m.get('installed_at',
   done
 }
 
+cmd_publish() {
+  # cmd_publish [chemin] : valide un skill avant soumission (PR).
+  # Vérifie SKILL.md (frontmatter), skill.json (cohérence), l'absence de
+  # collision de version dans index.json, l'absence de secrets, la taille.
+  local src="${1:-.}"
+  [ -d "$src" ] || { echo "Dossier introuvable : $src" >&2; return 1; }
+  src=$(cd "$src" && pwd)
+  # racine du dépôt (pour index.json) : remonte jusqu'à trouver index.json
+  local root="$src"
+  while [ "$root" != "/" ] && [ ! -f "$root/index.json" ]; do root=$(dirname "$root"); done
+  [ -f "$root/index.json" ] || root=""
+  need python3
+  python3 - "$src" "$root" <<'PYEOF'
+import json, os, re, sys
+
+src, root = sys.argv[1], sys.argv[2]
+name_dir = os.path.basename(src)
+errors, warns, oks = [], [], []
+
+def ok(m): oks.append(m)
+def err(m): errors.append(m)
+def warn(m): warns.append(m)
+
+# 1. SKILL.md + frontmatter
+sk = os.path.join(src, "SKILL.md")
+fm = {}
+if not os.path.isfile(sk):
+    err("SKILL.md manquant")
+else:
+    txt = open(sk, encoding="utf-8").read()
+    m = re.match(r"^---\s*\n(.*?)\n---\s*\n", txt, re.S)
+    if not m:
+        err("SKILL.md : frontmatter YAML '---' manquant ou malformé")
+    else:
+        for line in m.group(1).splitlines():
+            mm = re.match(r"^\s*([A-Za-z0-9_-]+)\s*:\s*(.+?)\s*$", line)
+            if mm: fm[mm.group(1)] = mm.group(2).strip().strip("'\"")
+        if fm.get("name"): ok("frontmatter : name = '%s'" % fm["name"])
+        else: err("frontmatter : 'name' manquant")
+        if fm.get("description"): ok("frontmatter : description présente")
+        else: err("frontmatter : 'description' manquante")
+
+# 2. skill.json
+sj = os.path.join(src, "skill.json")
+manifest = None
+if not os.path.isfile(sj):
+    err("skill.json manquant")
+else:
+    try:
+        manifest = json.load(open(sj, encoding="utf-8"))
+        ok("skill.json : JSON valide")
+    except Exception as e:
+        err("skill.json : JSON invalide (%s)" % e)
+
+if manifest is not None:
+    for f in ("name", "version", "description"):
+        if manifest.get(f): ok("skill.json : '%s' présent" % f)
+        else: err("skill.json : '%s' manquant" % f)
+    n = manifest.get("name", "")
+    if n and fm.get("name") and n != fm["name"]:
+        err("incohérence : skill.json name='%s' != SKILL.md name='%s'" % (n, fm["name"]))
+    elif n: ok("skill.json : name cohérent avec SKILL.md")
+    if n and n != name_dir:
+        err("incohérence : skill.json name='%s' != nom du dossier '%s'" % (n, name_dir))
+    elif n: ok("skill.json : name cohérent avec le dossier")
+    v = str(manifest.get("version", ""))
+    if re.match(r"^\d+\.\d+\.\d+$", v): ok("skill.json : version '%s' valide (semver)" % v)
+    elif v: err("skill.json : version '%s' invalide (attendu X.Y.Z)" % v)
+
+# 3. index.json : collision de version
+if root and manifest:
+    try:
+        idx = json.load(open(os.path.join(root, "index.json"), encoding="utf-8"))
+        names = {s["name"]: s.get("version", "") for s in idx.get("skills", [])}
+        n, v = manifest.get("name", ""), str(manifest.get("version", ""))
+        if n in names:
+            if names[n] == v:
+                err("index.json : la version %s de '%s' est déjà publiée (bumpe la version)" % (v, n))
+            else:
+                ok("index.json : '%s' existe (%s), nouvelle version %s" % (n, names[n], v))
+        else:
+            ok("index.json : '%s' est un nouveau skill (aucune collision)" % n)
+    except Exception as e:
+        warn("index.json illisible : %s" % e)
+
+# 4. scan secrets (avertissement, revue manuelle)
+pats = [r"sk-[A-Za-z0-9]{20,}", r"ghp_[A-Za-z0-9]{20,}", r"BEGIN [A-Z ]*PRIVATE KEY",
+        r"(?i)(api[_-]?key|secret|token)\s*[:=]\s*['\"][^'\"]{8,}['\"]"]
+hits = []
+for dp, _, fns in os.walk(src):
+    if ".git" in dp.split(os.sep): continue
+    for fn in fns:
+        p = os.path.join(dp, fn)
+        try:
+            t = open(p, encoding="utf-8", errors="ignore").read()
+        except Exception:
+            continue
+        for pat in pats:
+            for m in re.finditer(pat, t):
+                hits.append("%s: %s..." % (os.path.relpath(p, src), m.group(0)[:24]))
+                break
+if hits:
+    warn("possible secret détecté (%d) : %s — vérifie avant de publier" % (len(hits), ", ".join(hits[:3])))
+else:
+    ok("aucun secret détecté")
+
+# 5. taille
+total = sum(os.path.getsize(os.path.join(dp, f)) for dp, _, fns in os.walk(src) for f in fns)
+if total > 5 * 1024 * 1024:
+    warn("skill volumineux : %.1f Mo (> 5 Mo)" % (total / 1048576))
+else:
+    ok("taille raisonnable : %d Ko" % (total // 1024))
+
+for m in oks: print("  \u2713 " + m)
+for m in warns: print("  ! " + m)
+for m in errors: print("  \u2717 " + m)
+print()
+if errors:
+    print("RÉSULTAT : %d erreur(s), %d avertissement(s) — corrige avant la PR." % (len(errors), len(warns)))
+    sys.exit(1)
+print("RÉSULTAT : prêt à publier (%d vérifications, %d avertissement(s))." % (len(oks), len(warns)))
+if manifest:
+    n, v = manifest.get("name"), manifest.get("version")
+    print()
+    print("Prochaines étapes :")
+    print("  1. Ajoute cette entrée dans index.json :")
+    print('     {"name": "%s", "version": "%s", "description": "%s", "author": "BlackAngel242", "path": "skills/%s"}' % (n, v, manifest.get("description", ""), n))
+    print("  2. git add skills/%s index.json && git commit -m \"publish: %s %s\"" % (n, n, v))
+    print("  3. Ouvre une PR vers main.")
+PYEOF
+}
+
 cmd_update() {
   need python3
   [ -d "$SKILLS_DIR" ] || { echo "Aucun skill installé."; return 0; }
@@ -251,7 +384,7 @@ for s in json.load(sys.stdin)['skills']:
 }
 
 usage() {
-  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,21p' "$0" | sed 's/^# \{0,1\}//'
 }
 
 case "${1:-}" in
@@ -267,6 +400,7 @@ case "${1:-}" in
              [ $# -ge 2 ] || { echo "Usage : market remove <skill>" >&2; exit 1; }
              rm -rf "$SKILLS_DIR/$2" && echo "$2 désinstallé." ;;
   installed) cmd_installed ;;
+  publish)   cmd_publish "${2:-.}" ;;
   -h|--help|help|"") usage ;;
   *) echo "Commande inconnue : $1" >&2; usage >&2; exit 1 ;;
 esac

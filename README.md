@@ -4,7 +4,9 @@ Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI 
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Skills](https://img.shields.io/badge/skills-3-blue.svg)](#catalogue)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos-lightgrey.svg)](#installer-le-cli)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)](#installer-le-cli)
+
+![Démo du CLI market](assets/demo.gif)
 
 ## Comment ça marche
 
@@ -26,6 +28,17 @@ chmod +x ~/.local/bin/market
 ```
 
 Prérequis : `curl`, `python3`, `git` (recommandé). `~/.local/bin` doit être dans ton `PATH`.
+
+## Windows
+
+Le CLI existe aussi en PowerShell natif (`cli/market.ps1`), sans WSL ni Git Bash :
+
+```powershell
+Invoke-WebRequest https://raw.githubusercontent.com/BlackAngel242/skill-market/main/cli/market.ps1 -OutFile market.ps1
+powershell -ExecutionPolicy Bypass -File .\market.ps1 install uxfix
+```
+
+Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `publish`.
 
 ## Alternative : installer via `npx skills add`
 
@@ -51,6 +64,7 @@ market upgrade uxfix             # met à jour un skill
 market update                    # met à jour tout ce qui est installé
 market installed                 # ce qui est installé localement
 market remove uxfix              # désinstalle
+market publish skills/<nom>    # valide un skill avant soumission (PR)
 ```
 
 Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer).
@@ -99,8 +113,11 @@ flowchart TD
 ```
 
 1. Crée `skills/<nom>/` avec au minimum `SKILL.md` (la doc du skill) et `skill.json` (nom, version, description, `requires`).
-2. Ajoute une entrée dans `index.json` (nom, version, description, chemin, auteur).
-3. Ouvre une pull request. Une fois mergée, `market list` et `market update` voient le skill.
+2. Valide avec `market publish skills/<nom>` : 12 vérifications (frontmatter, JSON, cohérence des noms, version semver, collision dans `index.json`, secrets, taille). La commande affiche l'entrée `index.json` à ajouter si tout passe.
+3. Ajoute cette entrée dans `index.json`.
+4. Ouvre une pull request. Une fois mergée, `market list` et `market update` voient le skill.
+
+Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour le détail.
 
 ## Licence
 
