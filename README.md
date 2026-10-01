@@ -59,3 +59,4 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 |---|---|---|
 | `uxfix` | 1.0.0 | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | 2.2.0 | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |
+| `smokekit-ai-workflow-orchestration` | 4.0.0 | Orchestration multi-IA auto-évolutive : 20 agents SDLC, router réel avec détection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections. |

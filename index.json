@@ -1,1 +1,28 @@
-{"registry": "skill-market", "repo": "BlackAngel242/skill-market", "skills": [{"author": "BlackAngel242", "description": "Transforme une idee, un brief ou une maquette en PRD cadree et constructible, via une table ronde d'experts dimensionnee.", "name": "prd-table-ronde", "path": "skills/prd-table-ronde", "version": "2.2.0"}, {"name": "uxfix", "version": "1.0.0", "description": "Corrige seul les défauts UI : boucle détecter→corriger→revérifier jusqu'à un score de 99/100. Contrastes, halos, easings, interlettrage, palettes, copy marketing.", "path": "skills/uxfix", "author": "BlackAngel242"}], "updated": "2026-10-01"}
+{
+ "registry": "skill-market",
+ "repo": "BlackAngel242/skill-market",
+ "skills": [
+  {
+   "author": "BlackAngel242",
+   "description": "Transforme une idee, un brief ou une maquette en PRD cadree et constructible, via une table ronde d'experts dimensionnee.",
+   "name": "prd-table-ronde",
+   "path": "skills/prd-table-ronde",
+   "version": "2.2.0"
+  },
+  {
+   "name": "uxfix",
+   "version": "1.0.0",
+   "description": "Corrige seul les défauts UI : boucle détecter→corriger→revérifier jusqu'à un score de 99/100. Contrastes, halos, easings, interlettrage, palettes, copy marketing.",
+   "path": "skills/uxfix",
+   "author": "BlackAngel242"
+  },
+  {
+   "name": "smokekit-ai-workflow-orchestration",
+   "version": "4.0.0",
+   "description": "Orchestration multi-IA auto-evolutive : 20 agents SDLC, router reel avec detection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections.",
+   "author": "BlackAngel242",
+   "path": "skills/smokekit-ai-workflow-orchestration"
+  }
+ ],
+ "updated": "2026-10-01"
+}
