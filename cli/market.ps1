@@ -48,6 +48,18 @@ function Get-Index {
   (Invoke-RestMethod -Uri $IndexUrl).skills
 }
 
+function Test-SafeSkillName($Name) {
+  return ($Name -match '\A[A-Za-z0-9][A-Za-z0-9._-]*\z' -and $Name -notin @(".", ".."))
+}
+
+function Test-SafeSkillPath($Path) {
+  if ($Path -notmatch '\Askills/[A-Za-z0-9._/-]+\z') { return $false }
+  foreach ($part in ($Path -split '/')) {
+    if ($part -in @("", ".", "..")) { return $false }
+  }
+  return $true
+}
+
 function Get-Skill($Name) {
   Get-Index | Where-Object { $_.name -eq $Name } | Select-Object -First 1
 }
@@ -59,6 +71,7 @@ function Test-VersionNewer($Installed, $Remote) {
 
 function Get-SkillFiles($RepoPath, $Dest) {
   # Télécharge un sous-dossier du dépôt : git sparse-checkout si dispo, sinon zip.
+  if (-not (Test-SafeSkillPath $RepoPath)) { throw "Chemin de skill invalide dans le catalogue." }
   $tmp = Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName())
   New-Item -ItemType Directory -Path $tmp | Out-Null
   try {
@@ -119,9 +132,11 @@ function Write-Installed($Name, $Version) {
 }
 
 function Install-Skill($Name) {
+  if (-not (Test-SafeSkillName $Name)) { throw "Nom de skill invalide." }
   $s = Get-Skill $Name
   if (-not $s) { Write-Host "Skill '$Name' introuvable. Essaie 'market.ps1 list'."; exit 1 }
   $version = $s.version; $path = $s.path
+  if ($version -notmatch '\A[0-9]+\.[0-9]+\.[0-9]+\z') { throw "Version de skill invalide dans le catalogue." }
 
   $metaFile = Join-Path $SkillsDir "$Name\installed.json"
   if (Test-Path $metaFile) {
@@ -320,6 +335,7 @@ switch ($Command) {
   }
   "remove" {
     if (-not $Arg1) { Write-Host "Usage : market.ps1 remove <skill>"; exit 1 }
+    if (-not (Test-SafeSkillName $Arg1)) { throw "Nom de skill invalide." }
     Remove-Item (Join-Path $SkillsDir $Arg1) -Recurse -Force
     Write-Host "$Arg1 désinstallé."
   }

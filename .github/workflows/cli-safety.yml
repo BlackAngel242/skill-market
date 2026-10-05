@@ -1,0 +1,42 @@
+name: CLI safety checks
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - "tests/**"
+      - ".github/workflows/cli-safety.yml"
+  push:
+    branches: [main]
+    paths:
+      - "cli/**"
+      - "tests/**"
+      - ".github/workflows/cli-safety.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  safety:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Bash syntax
+        if: runner.os == 'Linux'
+        run: bash -n cli/market
+      - name: Check Bash input handling
+        if: runner.os == 'Linux'
+        run: bash tests/security-cli-inputs.sh
+      - name: Check PowerShell syntax and path handling
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $tokens = $null
+          $errors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/cli/market.ps1", [ref]$tokens, [ref]$errors) | Out-Null
+          if ($errors.Count -gt 0) { $errors | ForEach-Object { Write-Error $_ }; exit 1 }
+          ./tests/security-cli-inputs.ps1
