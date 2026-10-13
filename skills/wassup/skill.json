@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"État des lieux d'un dépôt : compare docs, plans, issues et code réel, signale les désynchronisations et propose les 3 prochaines actions. Mode portefeuille, sortie JSON, contrôles pilotage.","name":"wassup","requires":{"bins":["git"]},"version":"1.1.0"}

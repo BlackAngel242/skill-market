@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"Trouve les problèmes d'un projet depuis plusieurs sources et les classe en tickets vérifiés, sans rien modifier. Dry-run par défaut.","name":"collect","requires":{"bins":["git"]},"version":"1.0.0"}

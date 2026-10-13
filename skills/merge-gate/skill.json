@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"Checklist avant fusion : base à jour, vérifications au vert, commit relu épinglé, pas de force push. Verdict GO / NO-GO motivé.","name":"merge-gate","requires":{"bins":["git"]},"version":"1.0.0"}

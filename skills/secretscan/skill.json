@@ -1,0 +1,1 @@
+{"author":"BlackAngel242","description":"Détecte les secrets committés : fichiers .env, clés API et tokens en dur dans le code, clés privées. Signale sans jamais afficher les valeurs.","name":"secretscan","requires":{"bins":["git"]},"version":"1.0.0"}

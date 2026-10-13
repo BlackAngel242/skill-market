@@ -99,6 +99,11 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 | `uxfix` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | ![2.2.0](https://img.shields.io/badge/v2.2.0-blue) | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |
 | `smokekit-ai-workflow-orchestration` | ![4.0.0](https://img.shields.io/badge/v4.0.0-blue) | Orchestration multi-IA auto-évolutive : 20 agents SDLC, router réel avec détection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections. |
+| `fixit` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Revue visuelle des rendus : double lecture expert et utilisateur ordinaire, défauts classés BLOQUANT/IMPORTANT/OPTIONNEL, corrections précises, réinspection obligatoire, verdict REJETÉ/À CORRIGER/VALIDÉ SOUS RÉSERVE/VALIDÉ. |
+| `wassup` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | État des lieux d'un dépôt : compare docs, plans, issues et code réel, signale les désynchronisations et propose les 3 prochaines actions. Mode portefeuille, sortie JSON, contrôles pilotage. |
+| `collect` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Trouve les problèmes d'un projet depuis plusieurs sources et les classe en tickets vérifiés, sans rien modifier. Dry-run par défaut. |
+| `secretscan` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Détecte les secrets committés : fichiers .env, clés API et tokens en dur dans le code, clés privées. Signale sans jamais afficher les valeurs. |
+| `merge-gate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Checklist avant fusion : base à jour, vérifications au vert, commit relu épinglé, pas de force push. Verdict GO / NO-GO motivé. |
 
 ## Publier un skill
 
