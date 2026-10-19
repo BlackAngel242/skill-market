@@ -1,0 +1,9 @@
+{
+ "author": "haidrrrry",
+ "description": "Motion graphics avec Remotion : sous-titres, B-roll et son depuis un seul prompt.",
+ "name": "remotion-motion-graphics",
+ "requires": {},
+ "version": "1.0.0",
+ "upstream": "https://github.com/haidrrrry/claude-remotion-skill",
+ "license": "MIT (upstream)"
+}

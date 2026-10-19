@@ -1,0 +1,9 @@
+{
+ "author": "charlie947",
+ "description": "15 skills de motion graphics pour vidéos de lancement : tout est généré en code, sans After Effects.",
+ "name": "motion-graphics-skills",
+ "requires": {},
+ "version": "1.0.0",
+ "upstream": "https://github.com/charlie947/motion-graphics-skills",
+ "license": "MIT (upstream)"
+}

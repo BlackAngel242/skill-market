@@ -1,0 +1,9 @@
+{
+ "author": "cth9191",
+ "description": "Animation procédurale en code : storyboard d'abord, styles prédéfinis, synchronisation musicale.",
+ "name": "animate",
+ "requires": {},
+ "version": "1.0.0",
+ "upstream": "https://github.com/cth9191/animate",
+ "license": "MIT (upstream)"
+}

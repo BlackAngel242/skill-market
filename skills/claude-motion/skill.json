@@ -1,0 +1,9 @@
+{
+ "author": "whaleyxbt",
+ "description": "Toolkit motion design pour agents : design, sound design, boucle de review, simulations web.",
+ "name": "claude-motion",
+ "requires": {},
+ "version": "1.0.0",
+ "upstream": "https://github.com/whaleyxbt/claude-motion",
+ "license": "MIT (upstream)"
+}

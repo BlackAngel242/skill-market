@@ -1,0 +1,9 @@
+{
+ "author": "LottieFiles",
+ "description": "Principes universels de motion design pour agents : timing, easing, chorégraphie, 12 principes Disney adaptés aux UI.",
+ "name": "motion-design",
+ "requires": {},
+ "version": "1.0.0",
+ "upstream": "https://github.com/LottieFiles/motion-design-skill",
+ "license": "MIT (upstream)"
+}

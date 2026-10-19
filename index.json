@@ -57,7 +57,117 @@
    "description": "Checklist avant fusion : base à jour, vérifications au vert, commit relu épinglé, pas de force push. Verdict GO / NO-GO motivé.",
    "author": "BlackAngel242",
    "path": "skills/merge-gate"
+  },
+  {
+   "name": "motion-launch",
+   "version": "1.0.0",
+   "description": "Prépare une vidéo de lancement produit : script, structure, accroches, plan caméra et étalonnage, à partir du lien ou de la description du produit. Version typographique sans voix off par défaut.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-launch"
+  },
+  {
+   "name": "motion-graphics",
+   "version": "1.0.0",
+   "description": "Conçoit des graphiques animés : titres, lower thirds, transitions, infographies animées. Familles d'effets, règles de lisibilité, exports.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-graphics"
+  },
+  {
+   "name": "rush-cut",
+   "version": "1.0.0",
+   "description": "Prépare le montage de rushs : plan de coupes (blancs, ratés), animations à ajouter, sous-titres. Timecodes et fichier SRT.",
+   "author": "BlackAngel242",
+   "path": "skills/rush-cut"
+  },
+  {
+   "name": "motion-illustrate",
+   "version": "1.0.0",
+   "description": "Crée des plans d'illustration calés sur la narration et détoure les sujets. Storyboard visuel phrase par phrase.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-illustrate"
+  },
+  {
+   "name": "explainer-storyboard",
+   "version": "1.0.0",
+   "description": "Vidéos explicatives : choisit parmi 7 styles, produit toujours le storyboard AVANT toute animation.",
+   "author": "BlackAngel242",
+   "path": "skills/explainer-storyboard"
+  },
+  {
+   "name": "motion-sound",
+   "version": "1.0.0",
+   "description": "Sound design des vidéos : choix musical, effets sonores, mixage voix/musique/bruitages, timing.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-sound"
+  },
+  {
+   "name": "motion-web",
+   "version": "1.0.0",
+   "description": "Anime une interface web à partir d'une phrase : boutons, cartes, transitions de pages. Code CSS/JS propre et performant.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-web"
+  },
+  {
+   "name": "motion-principles",
+   "version": "1.0.0",
+   "description": "Les 12 principes d'animation Disney, traduits en règles pratiques pour que les animations aient l'air faites par un humain.",
+   "author": "BlackAngel242",
+   "path": "skills/motion-principles"
+  },
+  {
+   "name": "product-launch-motion",
+   "version": "1.0.0",
+   "description": "Vidéos de lancement produit cinématiques générées en code : mouvements de caméra, étalonnage, son calé sur le rythme.",
+   "author": "AbubakrChan",
+   "path": "skills/product-launch-motion",
+   "upstream": "https://github.com/AbubakrChan/product-launch-motion",
+   "license": "MIT (upstream)"
+  },
+  {
+   "name": "motion-graphics-skills",
+   "version": "1.0.0",
+   "description": "15 skills de motion graphics pour vidéos de lancement : tout est généré en code, sans After Effects.",
+   "author": "charlie947",
+   "path": "skills/motion-graphics-skills",
+   "upstream": "https://github.com/charlie947/motion-graphics-skills",
+   "license": "MIT (upstream)"
+  },
+  {
+   "name": "claude-motion",
+   "version": "1.0.0",
+   "description": "Toolkit motion design pour agents : design, sound design, boucle de review, simulations web.",
+   "author": "whaleyxbt",
+   "path": "skills/claude-motion",
+   "upstream": "https://github.com/whaleyxbt/claude-motion",
+   "license": "MIT (upstream)"
+  },
+  {
+   "name": "motion-design",
+   "version": "1.0.0",
+   "description": "Principes universels de motion design pour agents : timing, easing, chorégraphie, 12 principes Disney adaptés aux UI.",
+   "author": "LottieFiles",
+   "path": "skills/motion-design",
+   "upstream": "https://github.com/LottieFiles/motion-design-skill",
+   "license": "MIT (upstream)"
+  },
+  {
+   "name": "animate",
+   "version": "1.0.0",
+   "description": "Animation procédurale en code : storyboard d'abord, styles prédéfinis, synchronisation musicale.",
+   "author": "cth9191",
+   "path": "skills/animate",
+   "upstream": "https://github.com/cth9191/animate",
+   "license": "MIT (upstream)"
+  },
+  {
+   "name": "remotion-motion-graphics",
+   "version": "1.0.0",
+   "description": "Motion graphics avec Remotion : sous-titres, B-roll et son depuis un seul prompt.",
+   "author": "haidrrrry",
+   "path": "skills/remotion-motion-graphics",
+   "upstream": "https://github.com/haidrrrry/claude-remotion-skill",
+   "license": "MIT (upstream)"
   }
  ],
- "updated": "2026-10-13"
+ "updated": "2026-10-19"
 }
