@@ -1,0 +1,9 @@
+{
+ "author": "vincentsch",
+ "description": "Vidéos explicatives et démos produit narrées, fabriquées par l'agent : voix locale Kokoro (dont le français), timing mot à mot par Whisper, dessins canvas synchronisés sur la narration, MP4 avec sous-titres et image de couverture. Aucune clé API requise.",
+ "name": "explainroo",
+ "requires": {"bins": ["node", "ffmpeg", "git"]},
+ "version": "0.4.1",
+ "upstream": "https://github.com/vincentsch/explainroo",
+ "license": "MIT (upstream)"
+}

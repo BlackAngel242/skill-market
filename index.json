@@ -167,7 +167,16 @@
    "path": "skills/remotion-motion-graphics",
    "upstream": "https://github.com/haidrrrry/claude-remotion-skill",
    "license": "MIT (upstream)"
+  },
+  {
+   "name": "explainroo",
+   "version": "0.4.1",
+   "description": "Vidéos explicatives et démos produit narrées, fabriquées par l'agent : voix locale Kokoro (dont le français), timing mot à mot par Whisper, dessins canvas synchronisés sur la narration, MP4 avec sous-titres et image de couverture. Aucune clé API requise.",
+   "author": "vincentsch",
+   "path": "skills/explainroo",
+   "upstream": "https://github.com/vincentsch/explainroo",
+   "license": "MIT (upstream)"
   }
  ],
- "updated": "2026-10-19"
+ "updated": "2026-10-26"
 }

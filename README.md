@@ -118,6 +118,7 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 | `motion-design` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Principes universels de motion design pour agents (par LottieFiles, MIT) : timing, easing, 12 principes Disney pour UI. |
 | `animate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Animation procédurale en code (par cth9191, MIT) : storyboard d'abord, styles prédéfinis, synchro musicale. |
 | `remotion-motion-graphics` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Motion graphics avec Remotion (par haidrrrry, MIT) : sous-titres, B-roll et son depuis un seul prompt. |
+| `explainroo` | ![0.4.1](https://img.shields.io/badge/v0.4.1-blue) | Vidéos explicatives et démos produit narrées (par vincentsch, MIT) : voix locale Kokoro dont le français, timing Whisper, dessins canvas calés sur la narration, MP4 + sous-titres. Aucune clé API. |
 
 ## Publier un skill
 
