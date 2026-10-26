@@ -112,7 +112,7 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 | `motion-sound` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Sound design : choix musical, effets sonores, mixage, timing calé sur la musique. |
 | `motion-web` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Anime une interface web depuis une phrase : boutons, cartes, transitions. Code CSS/JS propre et performant. |
 | `motion-principles` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Les 12 principes d'animation Disney traduits en règles pratiques pour des animations qui ont l'air humaines. |
-| `product-launch-motion` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Vidéos de lancement cinématiques générées en code (par AbubakrChan, MIT) : caméra, étalonnage, son calé sur le rythme. |
+| `product-launch-motion` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | Vidéos de lancement cinématiques générées en code (par AbubakrChan, MIT) : caméra, étalonnage, son calé sur le rythme. |
 | `motion-graphics-skills` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Bundle de 15 skills de motion graphics (par charlie947, MIT) : vidéos de lancement générées en code, sans After Effects. |
 | `claude-motion` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Toolkit motion design (par whaleyxbt, MIT) : 4 skills — design, sound design, review-loop, web-sims. |
 | `motion-design` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Principes universels de motion design pour agents (par LottieFiles, MIT) : timing, easing, 12 principes Disney pour UI. |

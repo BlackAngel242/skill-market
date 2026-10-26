@@ -116,7 +116,7 @@
   },
   {
    "name": "product-launch-motion",
-   "version": "1.0.0",
+   "version": "1.1.0",
    "description": "Vidéos de lancement produit cinématiques générées en code : mouvements de caméra, étalonnage, son calé sur le rythme.",
    "author": "AbubakrChan",
    "path": "skills/product-launch-motion",

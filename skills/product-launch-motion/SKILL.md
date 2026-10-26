@@ -53,6 +53,8 @@ problem, current brand assets and actual behavior. Preserve the one-shape contin
    downbeat, cut the song window so the drop lands on the product's big moment. Something happens on
    every beat; typing rides 32nds on a snare build; slams accelerate beats → 8ths → 16ths.
 8. **Every UI sound is synthesized and placed by its measured peak** on the kick-peak grid.
+   Treat sound design as seriously as the visuals: original, layered sound effects that make the
+   film feel rich and alive (the Hoopoe Club film is one example). Be creative with it.
 9. **Loops:** when the piece loops, the last frame is the first frame — cursor position and speed
    included — or the loop stutters.
 

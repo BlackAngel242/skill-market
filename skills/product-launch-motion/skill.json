@@ -1,9 +1,9 @@
 {
  "author": "AbubakrChan",
  "description": "Vidéos de lancement produit cinématiques générées en code : mouvements de caméra, étalonnage, son calé sur le rythme.",
+ "license": "MIT (upstream)",
  "name": "product-launch-motion",
  "requires": {},
- "version": "1.0.0",
  "upstream": "https://github.com/AbubakrChan/product-launch-motion",
- "license": "MIT (upstream)"
+ "version": "1.1.0"
 }
