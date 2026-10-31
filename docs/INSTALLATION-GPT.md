@@ -1,6 +1,6 @@
 # Fixit et PRD Table Ronde : installation GPT et Codex
 
-Les skills canoniques de Skill Market sont `skills/fixit` (v1.0.0) et `skills/prd-table-ronde` (v2.2.0). Ils conservent leurs fichiers complémentaires, sans réécriture ni fusion.
+Les skills canoniques de Skill Market sont `skills/fixit` (v2.0.0) et `skills/prd-table-ronde` (v2.2.0). Fixit conserve ses références visuelles et ajoute des modules spécialisés à charger selon le besoin. Les fichiers complémentaires de chaque skill sont inclus dans les archives sans fusion des deux skills.
 
 ## Installation sur ordinateur
 

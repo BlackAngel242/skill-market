@@ -1,5 +1,12 @@
 # LESSONS.md : leçons mémorisées entre sessions IA
 
+## 2026-10-31 : faire évoluer Fixit sans désynchroniser les distributions
+
+- **Risque de dérive entre source et plugin.** Les copies `skills/fixit` et `plugins/drsmoke-quality/skills/fixit` doivent rester identiques ; modifier les deux en une seule opération puis laisser la CI comparer leurs contenus et construire les ZIP. Ne pas fusionner un skill original avec un autre.
+- **Une revue visuelle ne couvre pas tous les livrables.** Préserver le protocole visuel v1 dans un module à la demande ; faire choisir au noyau les autres contrôles selon la nature du livrable, sans multiplier les modules inutiles.
+- **Des personas ne créent pas des preuves.** Un panel simulé est une contradiction de perspectives, pas plusieurs validations indépendantes. Garder toujours un gate fondé sur la version et les vérifications réelles.
+- **Une amélioration distribuée exige une version cohérente.** Mettre à jour `SKILL.md`, `skill.json`, `index.json`, le README, la documentation et les tests ensemble.
+
 > Toute IA lit ce fichier avant de travailler. Plus récent en haut.
 
 ## 2026-10-31 : dépôts sélectionnés dans une installation GitHub
