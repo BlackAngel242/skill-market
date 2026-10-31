@@ -25,8 +25,8 @@
   },
   {
    "name": "fixit",
-   "version": "1.0.0",
-   "description": "Revue visuelle des rendus : double lecture expert et utilisateur ordinaire, défauts classés BLOQUANT/IMPORTANT/OPTIONNEL, corrections précises, réinspection obligatoire, verdict REJETÉ/À CORRIGER/VALIDÉ SOUS RÉSERVE/VALIDÉ.",
+   "version": "2.0.0",
+   "description": "Contrôle qualité adaptatif et modulaire des livrables IA : revues visuelle, technique, contenu et regards croisés, preuves, corrections autorisées, réinspection et apprentissage.",
    "author": "BlackAngel242",
    "path": "skills/fixit"
   },

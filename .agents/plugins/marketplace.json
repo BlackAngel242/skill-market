@@ -1,0 +1,20 @@
+{
+  "name": "drsmoke-skill-market",
+  "interface": {
+    "displayName": "DrSmoke Skill Market"
+  },
+  "plugins": [
+    {
+      "name": "drsmoke-quality",
+      "source": {
+        "source": "local",
+        "path": "./plugins/drsmoke-quality"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

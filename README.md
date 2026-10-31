@@ -20,6 +20,23 @@ flowchart LR
     INST --> UP["<b>market update</b><br/>mises à jour par version"]
 ```
 
+## Installer Fixit et PRD Table Ronde sur GPT / Codex
+
+Les deux compétences sont déjà dans le dépôt. Un assistant Windows, un installateur local sans réseau et des archives d'import pour ChatGPT sont documentés dans **[Installation GPT et Codex](docs/INSTALLATION-GPT.md)**.
+
+- Windows : double-cliquer sur `Installer Skill Market.bat` depuis le dépôt complet.
+- Codex : `node scripts/install-skills.mjs --tool codex`.
+- ChatGPT : générer `Fixit-ChatGPT.zip` et `TableRonde-ChatGPT.zip` avec `python scripts/build-chatgpt.py`, puis importer les skills dans un compte éligible.
+- Plugin local : `codex plugin marketplace add BlackAngel242/skill-market`.
+
+Les skills originaux et leurs références restent la source de vérité ; les miroirs du plugin sont contrôlés par la CI.
+
+### Fixit 2.0 modulaire
+
+Le skill Fixit est maintenant un **orchestrateur** : il choisit les modules pertinents selon le livrable, sans exécuter artificiellement tous les contrôles. Le noyau (`skills/fixit/SKILL.md`) charge toujours `references/verification-gate.md`, puis les modules `revue-visuelle.md`, `revue-technique.md`, `revue-contenu.md` et/ou `revue-equipe.md` selon le risque. Le suivi des leçons est dans `references/memoire-apprentissage.md`. Le guide visuel historique est préservé.
+
+Pour une installation locale déjà présente, **ne pas écraser silencieusement** : utiliser `--replace` après examen des différences ; l'ancienne copie est sauvegardée. Le CLI `market upgrade fixit` reste disponible pour ses installations suivies par le gestionnaire de versions.
+
 ## Installer le CLI
 
 ```bash
@@ -99,7 +116,7 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 | `uxfix` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | ![2.2.0](https://img.shields.io/badge/v2.2.0-blue) | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |
 | `smokekit-ai-workflow-orchestration` | ![4.0.0](https://img.shields.io/badge/v4.0.0-blue) | Orchestration multi-IA auto-évolutive : 20 agents SDLC, router réel avec détection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections. |
-| `fixit` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Revue visuelle des rendus : double lecture expert et utilisateur ordinaire, défauts classés BLOQUANT/IMPORTANT/OPTIONNEL, corrections précises, réinspection obligatoire, verdict REJETÉ/À CORRIGER/VALIDÉ SOUS RÉSERVE/VALIDÉ. |
+| `fixit` | ![2.0.0](https://img.shields.io/badge/v2.0.0-blue) | Contrôle qualité adaptatif : modules visuel, technique, contenu et équipe ; preuves, corrections autorisées, réinspection et apprentissage. |
 | `wassup` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | État des lieux d'un dépôt : compare docs, plans, issues et code réel, signale les désynchronisations et propose les 3 prochaines actions. Mode portefeuille, sortie JSON, contrôles pilotage. |
 | `collect` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Trouve les problèmes d'un projet depuis plusieurs sources et les classe en tickets vérifiés, sans rien modifier. Dry-run par défaut. |
 | `secretscan` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Détecte les secrets committés : fichiers .env, clés API et tokens en dur dans le code, clés privées. Signale sans jamais afficher les valeurs. |

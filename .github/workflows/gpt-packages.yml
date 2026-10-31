@@ -1,0 +1,44 @@
+name: Skill Market GPT packages
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/install-skills.mjs'
+      - 'scripts/install-windows.ps1'
+      - 'scripts/install-linux-macos.sh'
+      - 'scripts/build-chatgpt.py'
+      - 'skills/fixit/**'
+      - 'skills/prd-table-ronde/**'
+      - 'plugins/drsmoke-quality/**'
+      - '.agents/plugins/**'
+      - 'tests/installer-gpt.test.mjs'
+      - 'tests/test_gpt_packaging.py'
+      - 'tests/test_fixit_modularity.py'
+      - '.github/workflows/gpt-packages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  packaging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Test installer
+        run: node --test tests/installer-gpt.test.mjs
+      - name: Test archives
+        run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Verify original skills mirrored in plugin
+        run: python scripts/build-chatgpt.py --check
+      - name: Build GPT ZIP files
+        run: python scripts/build-chatgpt.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: skill-market-gpt-packages
+          path: dist/*.zip
+          if-no-files-found: error

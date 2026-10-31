@@ -1,0 +1,16 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "drsmoke-quality",
+  "version": "0.1.0",
+  "description": "Fixit pour contrôler les livrables, PRD Table Ronde pour cadrer et arbitrer les projets.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Fixit + Table Ronde",
+        "shortDescription": "Cadrer, décider, vérifier.",
+        "developerName": "DMAM PRO TECH",
+        "category": "Productivity"
+      }
+    }
+  }
+}
