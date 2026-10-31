@@ -1,5 +1,11 @@
 # LESSONS.md : leçons mémorisées entre sessions IA
 
+## 2026-10-31 : audit de l'installateur et corrections pré-fusion
+
+- **Frontmatter sur Windows.** Les fichiers .md peuvent être lus en CRLF après checkout ; normaliser les fins de ligne **pour la validation uniquement**, sans altérer les octets des ZIP.
+- **La portée projet est celle de l'appelant.** Le lanceur Bash ne doit pas modifier le répertoire de travail courant ; référencer le script par son chemin absolu tout en préservant les chemins relatifs de l'utilisateur.
+- **Sauvegardes hors scan.** Ne jamais placer des backups de `SKILL.md` sous `.agents/skills/`, `.claude/skills/`, etc. Les archiver dans un dossier frère, puis tester l'absence de doublons découvrables.
+
 ## 2026-10-31 : faire évoluer Fixit sans désynchroniser les distributions
 
 - **Risque de dérive entre source et plugin.** Les copies `skills/fixit` et `plugins/drsmoke-quality/skills/fixit` doivent rester identiques ; modifier les deux en une seule opération puis laisser la CI comparer leurs contenus et construire les ZIP. Ne pas fusionner un skill original avec un autre.

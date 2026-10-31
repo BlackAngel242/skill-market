@@ -38,7 +38,7 @@ def content(folder):
 
 def validate_skill(root, skill):
     entries = content(root / "skills" / skill)
-    markdown = dict(entries)["SKILL.md"].decode("utf-8-sig")
+    markdown = dict(entries)["SKILL.md"].decode("utf-8-sig").replace("\r\n", "\n")
     if not markdown.startswith("---\nname: " + skill + "\n"):
         raise ValueError(f"Frontmatter du skill invalide : {skill}")
     manifest = json.loads(dict(entries)["skill.json"].decode("utf-8"))

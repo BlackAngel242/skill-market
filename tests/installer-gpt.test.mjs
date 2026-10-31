@@ -54,9 +54,11 @@ test('conflit protégé et sauvegarde lors de --replace', async () => {
     assert.deepEqual(await readdir(dest), ['fixit']);
     assert.equal(await readFile(join(dest, 'fixit', 'SKILL.md'), 'utf8'), 'Personnalisation privée');
     assert.equal(run(root, '--dir', dest, '--replace').status, 0);
-    const backup = (await readdir(dest)).find(n => n.startsWith('fixit.backup-'));
+    const backupDir = join(root, '.skillmarket-backups');
+    const backup = (await readdir(backupDir)).find(n => n.startsWith('fixit-'));
     assert.ok(backup);
-    assert.equal(await readFile(join(dest, backup, 'SKILL.md'), 'utf8'), 'Personnalisation privée');
+    assert.deepEqual((await readdir(dest)).sort(), ['fixit', 'prd-table-ronde']);
+    assert.equal(await readFile(join(backupDir, backup, 'SKILL.md'), 'utf8'), 'Personnalisation privée');
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 test('ChatGPT n’est pas une destination locale ; noms invalides refusés', async () => {
@@ -64,5 +66,22 @@ test('ChatGPT n’est pas une destination locale ; noms invalides refusés', asy
   try {
     assert.notEqual(run(root, '--tool', 'chatgpt', '--dry-run').status, 0);
     assert.notEqual(run(root, '--skill', '../escape', '--dry-run').status, 0);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test('le lanceur Linux/macOS préserve le projet appelant et les chemins relatifs', { skip: process.platform === 'win32' }, async () => {
+  const root = await fixture();
+  try {
+    const project = join(root, 'projet externe');
+    await mkdir(project);
+    const wrapper = fileURLToPath(new URL('../scripts/install-linux-macos.sh', import.meta.url));
+    const r = spawnSync('bash', [wrapper, '--tool', 'codex', '--scope', 'project', '--skill', 'fixit', '--dry-run'], { cwd: project, encoding: 'utf8', timeout: 20000 });
+    if (r.error) throw r.error;
+    assert.equal(r.status, 0, r.stderr);
+    assert.ok(r.stdout.includes(join(project, '.agents', 'skills')), r.stdout);
+    const relative = spawnSync('bash', [wrapper, '--dir', 'custom-skills', '--skill', 'fixit', '--dry-run'], { cwd: project, encoding: 'utf8', timeout: 20000 });
+    if (relative.error) throw relative.error;
+    assert.equal(relative.status, 0, relative.stderr);
+    assert.ok(relative.stdout.includes(join(project, 'custom-skills')), relative.stdout);
   } finally { await rm(root, { recursive: true, force: true }); }
 });

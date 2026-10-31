@@ -19,7 +19,7 @@ node scripts/install-skills.mjs --tool cursor --scope project
 node scripts/install-skills.mjs --tool codex --dry-run
 ```
 
-Par défaut, les skills sont copiés dans le répertoire personnel du client. `--scope project` limite à un projet. `--dir <dossier>` personnalise la destination. Si un skill existe déjà avec un contenu différent, l'installation est refusée sans `--replace` ; ce dernier sauvegarde l'ancienne version.
+Par défaut, les skills sont copiés dans le répertoire personnel du client. `--scope project` limite à un projet. `--dir <dossier>` personnalise la destination. Si un skill existe déjà avec un contenu différent, l'installation est refusée sans `--replace` ; ce dernier sauvegarde l'ancienne version dans un dossier frère `.skillmarket-backups/`, hors des répertoires de découverte des skills.
 
 ## Import dans ChatGPT
 

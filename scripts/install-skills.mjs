@@ -111,7 +111,9 @@ async function main() {
     try {
       await cp(p.source, temp, { recursive: true, force: false, errorOnExist: true });
       if (p.action === 'sauvegarder puis remplacer') {
-        backup = p.target + '.backup-' + randomUUID();
+        const backupDir = join(base, '..', '.skillmarket-backups');
+        await mkdir(backupDir, { recursive: true });
+        backup = join(backupDir, p.skill + '-' + randomUUID());
         await rename(p.target, backup);
       }
       await rename(temp, p.target);

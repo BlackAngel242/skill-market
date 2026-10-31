@@ -43,6 +43,16 @@ class PackagingTest(unittest.TestCase):
             self.assertIn('drsmoke-quality/plugin.json', z.namelist())
             self.assertIn('drsmoke-quality/skills/fixit/SKILL.md', z.namelist())
 
+    def test_accepts_crlf_windows_checkout_and_preserves_archive_bytes(self):
+        for name in ('fixit', 'prd-table-ronde'):
+            for prefix in (self.root / 'skills', self.root / 'plugins' / 'drsmoke-quality' / 'skills'):
+                path = prefix / name / 'SKILL.md'
+                path.write_bytes(path.read_bytes().replace(b'\n', b'\r\n'))
+        r = self.run_script()
+        self.assertEqual(r.returncode, 0, r.stderr)
+        with ZipFile(self.root / 'dist' / 'Fixit-ChatGPT.zip') as z:
+            self.assertIn(b'\r\n', z.read('fixit/SKILL.md'))
+
     def test_detects_desynchronized_mirror(self):
         (self.root / 'skills' / 'fixit' / 'SKILL.md').write_text('Modification', encoding='utf-8')
         r = self.run_script('--check')
