@@ -1,0 +1,4 @@
+# Archives locales générées par scripts/build-chatgpt.py
+dist/
+__pycache__/
+*.pyc

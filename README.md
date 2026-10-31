@@ -20,6 +20,17 @@ flowchart LR
     INST --> UP["<b>market update</b><br/>mises à jour par version"]
 ```
 
+## Installer Fixit et PRD Table Ronde sur GPT / Codex
+
+Les deux compétences sont déjà dans le dépôt. Un assistant Windows, un installateur local sans réseau et des archives d'import pour ChatGPT sont documentés dans **[Installation GPT et Codex](docs/INSTALLATION-GPT.md)**.
+
+- Windows : double-cliquer sur `Installer Skill Market.bat` depuis le dépôt complet.
+- Codex : `node scripts/install-skills.mjs --tool codex`.
+- ChatGPT : générer `Fixit-ChatGPT.zip` et `TableRonde-ChatGPT.zip` avec `python scripts/build-chatgpt.py`, puis importer les skills dans un compte éligible.
+- Plugin local : `codex plugin marketplace add BlackAngel242/skill-market`.
+
+Les skills originaux et leurs références restent la source de vérité ; les miroirs du plugin sont contrôlés par la CI.
+
 ## Installer le CLI
 
 ```bash
