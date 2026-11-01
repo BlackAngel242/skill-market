@@ -13,7 +13,7 @@ Ne jamais confondre modèle IA réentraîné et historique des décisions. Affic
 1. `python engine/learn.py init --workspace <dossier>` (uniquement sur un emplacement autorisé).
 2. `python engine/learn.py record --workspace <dossier> --project "formation-windows" --scope "DMAM-PRO-TECH:WhatsApp" --signal approved --aspect "cta" --decision "CTA en pied très contrasté" --reason "lecture mobile validée"`. Enregistrer **sur retour réel**, pas après simulation.
 3. `python engine/learn.py candidates --workspace <dossier>` : proposer une règle après **au moins deux confirmations cohérentes**, aucune réfutation pour la même portée/aspect/décision.
-4. `python engine/learn.py adopt --workspace <dossier> --scope "..." --aspect "..." --decision "..." --confirm` seulement après validation de la règle par l'utilisateur. Le fichier de politique est versionnable, révocable et consultable.
+4. `python engine/learn.py adopt --workspace <dossier> --scope "..." --aspect "..." --decision "..." --confirm` seulement après validation de la règle par l'utilisateur. Le fichier de politique est versionnable, consultable et révocable via `python engine/learn.py revoke --workspace <dossier> --scope ... --aspect ... --decision ... --confirm`, après accord explicite.
 5. À chaque projet, confronter ces règles à l'objectif réel. Si une règle est devenue inadaptée, documenter une exception et proposer sa révocation. Ne pas empiler les règles inutiles.
 
 Le moteur est optionnel : s'il n'est pas exécutable (par exemple ChatGPT sans accès aux fichiers du workspace), rendre le JSON de feedback pour import futur. Ce n'est pas un service hébergé ni une synchronisation automatique entre comptes.
