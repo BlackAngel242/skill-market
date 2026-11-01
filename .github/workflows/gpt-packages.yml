@@ -37,7 +37,7 @@ jobs:
         run: python scripts/build-chatgpt.py --check
       - name: Build GPT ZIP files
         run: python scripts/build-chatgpt.py
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: skill-market-gpt-packages
           path: dist/*.zip
