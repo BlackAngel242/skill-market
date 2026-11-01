@@ -66,10 +66,12 @@ def build(root, check=False):
         mirror = plugin_dir / "skills" / name
         if dict(content(mirror)) != dict(entries):
             raise ValueError(f"Miroir de {name} désynchronisé : conserver les sources exactes")
+    afficheux_entries = validate_skill(root, "afficheux")
     if check:
-        print("Miroirs et manifestes conformes aux sources.")
+        print("Miroirs et manifestes conformes aux sources; AfficheUX valide.")
         return
     dist = root / "dist"
+    write_zip(dist / "AfficheUX-ChatGPT.zip", [("afficheux/" + path, data) for path, data in afficheux_entries])
     for name, entries in skills.items():
         write_zip(dist / OUTPUTS[name], [(name + "/" + path, data) for path, data in entries])
     combined = [(PLUGIN + "/plugin.json", (plugin_dir / "plugin.json").read_bytes())]

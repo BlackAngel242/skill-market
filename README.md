@@ -3,7 +3,7 @@
 Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI qui installe en global, détecte les outils présents sur la machine et gère les mises à jour.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-3-blue.svg)](#catalogue)
+[![Skills](https://img.shields.io/badge/skills-24-blue.svg)](#catalogue)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)](#installer-le-cli)
 
 ![Démo du CLI market](assets/demo-powershell.gif)
@@ -109,10 +109,20 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 | `bins` | le binaire doit exister sur la machine, sinon l'installation s'arrête avec un message clair |
 | `npm` / `pip` | si le paquet manque, le CLI propose de l'installer (avec `-y`, il le fait sans demander) |
 
+## AfficheUX — direction artistique par références
+
+AfficheUX est un **skill maître** qui orchestre un essaim de rôles : brief, piste initiale, recherche Pinterest traçable, analyse UX, propositions, validation, création, contrôle Fixit et capitalisation des retours. Il fonctionne en mode multi-agents quand le client le permet, ou séquentiellement sans prétendre déployer des sous-agents. Pinterest et les métriques d'engagement ne sont utilisés que si accessibles et vérifiables.
+
+- Installer : `market install afficheux` (après fusion dans le catalogue), ou `npx skills add BlackAngel242/skill-market --skill afficheux -g -y`.
+- Voir le protocole de validation : [AfficheUX et critères d'adoption](docs/AFFICHEUX-VALIDATION.md).
+- L'archive `AfficheUX-ChatGPT.zip` peut être créée par `python scripts/build-chatgpt.py` pour un import manuel dans un compte compatible.
+- La mémoire explicite d'apprentissage reste dans un dossier de projet autorisé, jamais prétendument synchronisée en silence.
+
 ## Catalogue
 
 | Skill | Version | Description |
 |---|---|---|
+| `afficheux` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Essaim de direction artistique par références Pinterest : UX, Fixit et mémoire vérifiable. |
 | `uxfix` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | ![2.2.0](https://img.shields.io/badge/v2.2.0-blue) | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |
 | `smokekit-ai-workflow-orchestration` | ![4.0.0](https://img.shields.io/badge/v4.0.0-blue) | Orchestration multi-IA auto-évolutive : 20 agents SDLC, router réel avec détection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections. |
