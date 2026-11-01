@@ -1,0 +1,11 @@
+{
+  "name": "afficheux",
+  "version": "1.0.0",
+  "description": "Essaim de direction artistique pour affiches et flyers : Pinterest vérifiable, analyse UX, validation, Fixit et apprentissage traçable.",
+  "author": "BlackAngel242",
+  "requires": {
+    "bins": [],
+    "npm": [],
+    "pip": []
+  }
+}

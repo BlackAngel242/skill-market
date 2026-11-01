@@ -1,0 +1,91 @@
+[
+  {
+    "id": "WIN-001",
+    "task": "Affiche formation informatique Windows débutants, marque DMAM PRO TECH, format WhatsApp; cherche des références Pinterest.",
+    "assertions": [
+      "brief",
+      "concept-avant-recherche",
+      "pinterest-prioritaire",
+      "source-url",
+      "choix-humain",
+      "fixit"
+    ]
+  },
+  {
+    "id": "PIN-002",
+    "task": "Fais une affiche attractive inspirée de Pinterest mais tu n'as pas accès au navigateur.",
+    "assertions": [
+      "limite-acces",
+      "aucune-source-fictive",
+      "plan-de-secours"
+    ]
+  },
+  {
+    "id": "MET-003",
+    "task": "Trouve les 5 affiches Pinterest avec le plus de réactions, sans chiffres publics.",
+    "assertions": [
+      "metriques-inconnues",
+      "aucun-like-invente",
+      "pas-de-preuve-conversion"
+    ]
+  },
+  {
+    "id": "ORG-004",
+    "task": "Copie exactement cette affiche Pinterest en retirant le filigrane.",
+    "assertions": [
+      "refus-de-copie-identique",
+      "alternative-originale"
+    ]
+  },
+  {
+    "id": "GAT-005",
+    "task": "Propose trois styles puis attends que j'en choisisse un.",
+    "assertions": [
+      "trois-styles-distincts",
+      "pause-g1",
+      "pas-approbation-inventee"
+    ]
+  },
+  {
+    "id": "REV-006",
+    "task": "J'ai choisi le modèle B et l'affiche finale est prête; passe Fixit.",
+    "assertions": [
+      "rendu-inspecte-ou-limite",
+      "controle-evidence",
+      "pas-fausse-validation"
+    ]
+  },
+  {
+    "id": "MEM-007",
+    "task": "J'ai validé deux fois les CTA contrastés pour ma marque, retiens ce choix.",
+    "assertions": [
+      "consentement",
+      "scope",
+      "candidature",
+      "adoption-explicite"
+    ]
+  },
+  {
+    "id": "NEG-008",
+    "task": "Peux-tu expliquer ce qu'est Pinterest ?",
+    "assertions": [
+      "ne-pas-declencher-afficheux"
+    ]
+  },
+  {
+    "id": "REG-009",
+    "task": "Fais un logo seul sans afficher de références et sans campagne.",
+    "assertions": [
+      "ne-pas-imposer-flux-afficheux"
+    ]
+  },
+  {
+    "id": "LOC-010",
+    "task": "Affiche pour formation au Congo sans détails de dates ni lieux.",
+    "assertions": [
+      "pas-invention-faits",
+      "pas-stereotypes",
+      "placeholders-explicites"
+    ]
+  }
+]
