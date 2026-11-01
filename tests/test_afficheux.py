@@ -33,7 +33,12 @@ class AfficheUXTest(unittest.TestCase):
     def test_learning_approval_and_adoption(self):
         spec = importlib.util.spec_from_file_location("afficheux_learning", ENGINE)
         module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        old_flag = sys.dont_write_bytecode
+        sys.dont_write_bytecode = True
+        try:
+            spec.loader.exec_module(module)
+        finally:
+            sys.dont_write_bytecode = old_flag
         with tempfile.TemporaryDirectory() as tmp:
             module.init(tmp)
             folder = module.base(tmp)
