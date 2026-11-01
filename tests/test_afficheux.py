@@ -61,6 +61,16 @@ class AfficheUXTest(unittest.TestCase):
             self.assertEqual(allowed.returncode,0,allowed.stderr)
             adopted = json.loads((folder / "policy.json").read_text(encoding="utf-8"))["adopted"]
             self.assertEqual(len(adopted),1)
+            unauthorized_revoke = subprocess.run([sys.executable,str(ENGINE),"revoke","--workspace",tmp,
+                                      "--scope","marque:mobile","--aspect","cta",
+                                      "--decision","contraste fort"],capture_output=True,text=True)
+            self.assertNotEqual(unauthorized_revoke.returncode,0)
+            revoked = subprocess.run([sys.executable,str(ENGINE),"revoke","--workspace",tmp,
+                                      "--scope","marque:mobile","--aspect","cta",
+                                      "--decision","contraste fort","--confirm"],
+                                     capture_output=True,text=True)
+            self.assertEqual(revoked.returncode,0,revoked.stderr)
+            self.assertEqual(json.loads((folder / "policy.json").read_text(encoding="utf-8"))["adopted"],[])
             with (folder / "events.jsonl").open("a", encoding="utf-8") as f:
                 f.write(json.dumps({**event,"signal":"rejected"})+"\n")
             self.assertEqual(module.candidates(module.read_events(folder)), [])
