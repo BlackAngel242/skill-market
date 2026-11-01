@@ -1,9 +1,9 @@
 ---
 name: fixit
-description: "Contrôle qualité adaptatif et modulaire des livrables IA : sélection des capacités, revues visuelle/technique/contenu, contradiction ciblée, corrections autorisées, preuves, réinspection et apprentissage sans sur-promesse."
+description: "Contrôle qualité adaptatif et modulaire des livrables IA : sélection des capacités, revues visuelle/UX/technique/contenu, contradiction ciblée, corrections autorisées, preuves, réinspection et apprentissage sans sur-promesse."
 ---
 
-# Fixit 2.0 — contrôle qualité adaptatif
+# Fixit 2.1 — contrôle qualité adaptatif
 
 Fixit examine un **livrable déjà produit** pour identifier des défauts démontrables, proposer ou appliquer les corrections autorisées, vérifier le résultat et transmettre des leçons utiles. Ce n'est ni un générateur de PRD (voir `prd-table-ronde`), ni un outil de refonte automatique, ni un vote de personas fictifs.
 
@@ -14,11 +14,12 @@ Activer pour « Fixit », « avis Fixit », « passe Fixit », « revue finale �
 | Signal de la mission | Module à lire |
 |---|---|
 | Image, interface, page, maquette, PDF rendu, animation visible | `references/revue-visuelle.md` |
+| Interface interactive, application mobile, flux utilisateur, écran à parcourir | `references/critique-ux.md` **et** `references/revue-visuelle.md` |
 | Code, sécurité, performance, base, déploiement, tests, infrastructure | `references/revue-technique.md` |
 | Texte, publication, documentation, voix, vidéo, storyboard, marketing | `references/revue-contenu.md` |
 | Mission multidomaine à risque, désaccord sérieux, demande de revue collective | `references/revue-equipe.md` |
 
-Toujours lire **`references/verification-gate.md`**, qui définit les verdicts et le format de restitution. En cas de retour important ou de continuité de projet, lire `references/memoire-apprentissage.md`. Une mission mixte peut activer deux modules ; ne pas charger les quatre par réflexe. La revue visuelle conserve le guide optionnel `references/references-visuelles.md`.
+Toujours lire **`references/verification-gate.md`**, qui définit les verdicts et le format de restitution. En cas de retour important ou de continuité de projet, lire `references/memoire-apprentissage.md`. Une mission mixte peut activer deux modules ; ne pas charger les quatre par réflexe. La revue visuelle conserve le guide optionnel `references/references-visuelles.md`. Pour un écran ou parcours interactif, lire `references/critique-ux.md` afin de juger l'utilisabilité, la hiérarchie, la cohérence et les états sans dupliquer la vérification des pixels.
 
 ## Protocole CORE
 
