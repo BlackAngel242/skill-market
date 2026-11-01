@@ -49,7 +49,7 @@ def candidates(events, minimum=2):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     actions = parser.add_subparsers(dest="action", required=True)
-    for action in ("init", "record", "candidates", "adopt", "stats"):
+    for action in ("init", "record", "candidates", "adopt", "revoke", "stats"):
         p = actions.add_parser(action)
         p.add_argument("--workspace", required=True)
         if action == "record":
@@ -58,7 +58,7 @@ def main(argv=None):
             p.add_argument("--signal", choices=SIGNALS, required=True)
         if action == "candidates":
             p.add_argument("--min-support", type=int, default=2)
-        if action == "adopt":
+        if action in ("adopt", "revoke"):
             for k in ("scope", "aspect", "decision"):
                 p.add_argument("--" + k, required=True)
             p.add_argument("--confirm", action="store_true")
@@ -97,6 +97,16 @@ def main(argv=None):
             policy["adopted"].append(rec)
             path.write_text(json.dumps(policy,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
         print(json.dumps({"adopted":rec},ensure_ascii=False))
+    elif args.action == "revoke":
+        if not args.confirm:
+            parser.error("Retrait interdit sans --confirm et accord explicite de l'utilisateur.")
+        path = folder / POLICY
+        policy = json.loads(path.read_text(encoding="utf-8"))
+        rec = {"scope":args.scope,"aspect":args.aspect,"decision":args.decision}
+        if rec in policy["adopted"]:
+            policy["adopted"].remove(rec)
+            path.write_text(json.dumps(policy,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        print(json.dumps({"revoked":rec},ensure_ascii=False))
     elif args.action == "stats":
         print(json.dumps({"events":len(events),"signals":dict(Counter(e["signal"] for e in events)),
                           "candidates":len(candidates(events))},ensure_ascii=False))
