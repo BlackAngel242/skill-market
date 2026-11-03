@@ -58,7 +58,7 @@ Invoke-WebRequest https://raw.githubusercontent.com/BlackAngel242/skill-market/m
 powershell -ExecutionPolicy Bypass -File .\market.ps1 install uxfix
 ```
 
-Fonctionne avec Windows PowerShell 5.1 (`powershell`, présent sur tout Windows 10/11) et PowerShell 7 (`pwsh`) ; la CI teste les deux. Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `publish`.
+Fonctionne avec Windows PowerShell 5.1 (`powershell`, présent sur tout Windows 10/11) et PowerShell 7 (`pwsh`) ; la CI teste les deux. Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `doctor`, `publish`.
 
 ## Alternative : installer via `npx skills add`
 
@@ -91,14 +91,18 @@ market search design     # recherche
 market info uxfix        # fiche détaillée
 market install uxfix             # installe en global, détecte/installe les outils requis
 market install uxfix -y          # sans demander confirmation
+market install uxfix --force     # remplace un dossier non suivi par market (ancienne copie sauvegardée)
 market upgrade uxfix             # met à jour un skill
 market update                    # met à jour tout ce qui est installé
 market installed                 # ce qui est installé localement
+market doctor                    # diagnostic en lecture seule : versions, outils requis
 market remove uxfix              # désinstalle
 market publish skills/<nom>    # valide un skill avant soumission (PR)
 ```
 
-Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer).
+Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer). Avant tout remplacement (`upgrade`, `update`, `--force`), l'ancienne copie est déplacée dans `~/.skill-market/backup/<nom>-<version>-<horodatage>/`, puis restaurée si la nouvelle copie échoue. Un dossier qui n'a pas été installé par `market` n'est jamais écrasé sans `--force`.
+
+Codes de sortie : `0` succès ; non nul si un prérequis manque ou est refusé, si un téléchargement ou une installation npm/pip échoue, ou si `update` a au moins un échec. `market doctor` renvoie `0` (rien à signaler), `1` (anomalie) ou `2` (diagnostic incomplet, catalogue inaccessible).
 
 ## Détection d'outils
 

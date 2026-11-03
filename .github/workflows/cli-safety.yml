@@ -30,12 +30,18 @@ jobs:
         run: bash -n cli/market
       - name: Check Bash input handling
         if: runner.os == 'Linux'
-        run: bash tests/security-cli-inputs.sh
+        run: |
+          bash tests/security-cli-inputs.sh
+          bash tests/test_cli_install.sh
       - name: PowerShell 7 - parse and path handling
         if: runner.os == 'Windows'
         shell: pwsh
-        run: ./tests/security-cli-inputs.ps1
+        run: |
+          ./tests/security-cli-inputs.ps1
+          ./tests/test_cli_install.ps1
       - name: Windows PowerShell 5.1 - parse and path handling
         if: runner.os == 'Windows'
         shell: powershell
-        run: ./tests/security-cli-inputs.ps1
+        run: |
+          ./tests/security-cli-inputs.ps1
+          ./tests/test_cli_install.ps1
