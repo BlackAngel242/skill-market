@@ -1,0 +1,4 @@
+# Fins de ligne imposées seulement là où le format l'exige ; le reste suit la configuration Git.
+*.bat text eol=crlf
+*.sh text eol=lf
+cli/market text eol=lf

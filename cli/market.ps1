@@ -1,4 +1,4 @@
-#!/usr/bin/env pwsh
+﻿#!/usr/bin/env pwsh
 <#
 .SYNOPSIS
   market - installe et met à jour des skills depuis le marketplace skill-market (Windows).
@@ -114,7 +114,8 @@ function Test-Requires($ManifestPath) {
     }
   }
   foreach ($p in @($req.pip) | Where-Object { $_ }) {
-    $pip = (Get-Command pip -ErrorAction SilentlyContinue) ?? (Get-Command pip3 -ErrorAction SilentlyContinue)
+    $pip = Get-Command pip -ErrorAction SilentlyContinue
+    if (-not $pip) { $pip = Get-Command pip3 -ErrorAction SilentlyContinue }
     if (-not $pip) { Write-Host "pip introuvable et requis. Abandon."; return $false }
     & $pip show $p 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) {

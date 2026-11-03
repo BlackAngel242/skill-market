@@ -49,7 +49,7 @@ class PackagingTest(unittest.TestCase):
         for name in ('fixit', 'prd-table-ronde'):
             for prefix in (self.root / 'skills', self.root / 'plugins' / 'drsmoke-quality' / 'skills'):
                 path = prefix / name / 'SKILL.md'
-                path.write_bytes(path.read_bytes().replace(b'\n', b'\r\n'))
+                path.write_bytes(path.read_bytes().replace(b'\r\n', b'\n').replace(b'\n', b'\r\n'))
         r = self.run_script()
         self.assertEqual(r.returncode, 0, r.stderr)
         with ZipFile(self.root / 'dist' / 'Fixit-ChatGPT.zip') as z:
