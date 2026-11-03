@@ -30,12 +30,16 @@ REPO_URL="https://github.com/${REPO}.git"
 export PYTHONIOENCODING=utf-8
 # Sous Windows, python3 peut être l'alias Microsoft Store, qui ne lance rien : garder le premier interpréteur qui répond.
 PY=""
+PY_ARGS=()
 for cand in python3 python; do
   if "$cand" -c 'import sys; sys.exit(sys.version_info < (3,))' >/dev/null 2>&1; then PY="$cand"; break; fi
 done
+if [ -z "$PY" ] && py -3 -c 'import sys; sys.exit(sys.version_info < (3,))' >/dev/null 2>&1; then PY=py; PY_ARGS=(-3); fi
+
+py_run() { "$PY" "${PY_ARGS[@]}" "$@"; }
 
 need_python() {
-  [ -n "$PY" ] || { echo "Outil manquant : Python 3 (python3 ou python). Installe-le puis relance." >&2; exit 1; }
+  [ -n "$PY" ] || { echo "Outil manquant : Python 3 (python3, python ou py -3). Installe-le puis relance." >&2; exit 1; }
 }
 
 need() {
@@ -74,7 +78,7 @@ require_skill_name() {
 
 skill_field() {
   local name="$1" field="$2"
-  fetch_index | "$PY" -c '
+  fetch_index | py_run -c '
 import json, sys
 name, field = sys.argv[1:3]
 for s in json.load(sys.stdin)["skills"]:
@@ -112,7 +116,7 @@ check_requires() {
   local manifest="$1"
   need_python
   local missing
-  missing=$("$PY" - "$manifest" <<'EOF'
+  missing=$(py_run - "$manifest" <<'EOF'
 import json, shutil, subprocess, sys
 m = json.load(open(sys.argv[1]))
 req = m.get("requires", {})
@@ -174,7 +178,7 @@ EOF
 
 write_installed() {
   local name="$1" version="$2"
-  "$PY" -c '
+  py_run -c '
 import datetime, json, os, sys
 name, version, skills_dir = sys.argv[1:4]
 installed = os.path.join(skills_dir, name, "installed.json")
@@ -195,7 +199,7 @@ do_install() {
   dest="$SKILLS_DIR/$name"
   if [ -e "$dest" ] || [ -L "$dest" ]; then
     if [ -f "$dest/installed.json" ]; then
-      iv=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$dest/installed.json") || return 1
+      iv=$(py_run -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$dest/installed.json") || return 1
       [[ "$iv" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version installée invalide." >&2; return 1; }
       [ "$iv" != "$version" ] || { echo "$name $version est déjà installé."; return 0; }
     elif [ "$force" != 1 ]; then
@@ -204,7 +208,7 @@ do_install() {
   fi
   tmp=$(mktemp -d) || return 1
   if ! download_skill "$path" "$tmp/pkg"; then echo "Téléchargement impossible." >&2; rm -rf -- "$tmp"; return 1; fi
-  if ! [ -f "$tmp/pkg/SKILL.md" ] || ! "$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); assert m.get("name")==sys.argv[2] and m.get("version")==sys.argv[3]' "$tmp/pkg/skill.json" "$name" "$version" || ! check_requires "$tmp/pkg/skill.json"; then
+  if ! [ -f "$tmp/pkg/SKILL.md" ] || ! py_run -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); assert m.get("name")==sys.argv[2] and m.get("version")==sys.argv[3]' "$tmp/pkg/skill.json" "$name" "$version" || ! check_requires "$tmp/pkg/skill.json"; then
     echo "Skill ou prérequis invalides : installation abandonnée." >&2; rm -rf -- "$tmp"; return 1
   fi
   mkdir -p "$SKILLS_DIR" "$MARKET_HOME/backup" || { rm -rf -- "$tmp"; return 1; }
@@ -225,7 +229,7 @@ do_install() {
 
 cmd_list() {
   need_python
-  fetch_index | "$PY" -c "
+  fetch_index | py_run -c "
 import json, sys
 for s in json.load(sys.stdin)['skills']:
     print(s['name'] + ' ' + s['version'] + ' - ' + s.get('description',''))
@@ -235,7 +239,7 @@ for s in json.load(sys.stdin)['skills']:
 cmd_search() {
   need_python
   local q="$1"
-  fetch_index | "$PY" -c '
+  fetch_index | py_run -c '
 import json, sys
 q = sys.argv[1].lower()
 for s in json.load(sys.stdin)["skills"]:
@@ -251,9 +255,9 @@ cmd_info() {
   require_skill_name "$name" || return 1
   path=$(skill_field "$name" path) || return 1
   [ -n "$path" ] && valid_skill_path "$path" || { echo "Skill introuvable ou chemin invalide." >&2; return 1; }
-  fetch_index | "$PY" -c 'import json,sys; s=next(x for x in json.load(sys.stdin)["skills"] if x["name"]==sys.argv[1]); print("Nom         :",s["name"]); print("Version     :",s["version"]); print("Auteur      :",s.get("author","-")); print("Description :",s.get("description","-"))' "$name" || return 1
-  manifest=$(curl -fsSL "https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}/skill.json" 2>/dev/null) || manifest=''
-  printf '%s' "$manifest" | "$PY" -c 'import json,sys
+  fetch_index | py_run -c 'import json,sys; s=next(x for x in json.load(sys.stdin)["skills"] if x["name"]==sys.argv[1]); print("Nom         :",s["name"]); print("Version     :",s["version"]); print("Auteur      :",s.get("author","-")); print("Description :",s.get("description","-"))' "$name" || return 1
+  if ! manifest=$(curl -fsSL "https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}/skill.json" 2>/dev/null); then echo "Fiche inaccessible (réseau)."; return 0; fi
+  printf '%s' "$manifest" | py_run -c 'import json,sys
 try:
  m=json.load(sys.stdin); r=m.get("requires"); assert isinstance(m,dict); assert r is None or (isinstance(r,dict) and all(isinstance(v,list) and all(isinstance(x,str) for x in v) for v in r.values()))
  print("Licence     :",m.get("license") or "non renseigné")
@@ -266,7 +270,7 @@ cmd_installed() {
   need_python
   for d in "$SKILLS_DIR"/*/; do
     [ -f "$d/installed.json" ] || continue
-    "$PY" -c '
+    py_run -c '
 import json, sys
 m = json.load(open(sys.argv[1], encoding="utf-8"))
 print(m["name"] + " " + m["version"] + " (installé le " + m.get("installed_at", "?") + ")")
@@ -286,7 +290,7 @@ cmd_publish() {
   while [ "$root" != "/" ] && [ ! -f "$root/index.json" ]; do root=$(dirname "$root"); done
   [ -f "$root/index.json" ] || root=""
   need_python
-  "$PY" - "$src" "$root" <<'PYEOF'
+  py_run - "$src" "$root" <<'PYEOF'
 import json, os, re, sys
 
 src, root = sys.argv[1], sys.argv[2]
@@ -414,8 +418,8 @@ cmd_update() {
   for d in "$SKILLS_DIR"/*/; do
     [ -f "$d/installed.json" ] || continue
     name=$(basename "$d")
-    if ! iv=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json"); then failed=$((failed+1)); continue; fi
-    if ! rv=$(printf '%s' "$idx" | "$PY" -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name"); then failed=$((failed+1)); continue; fi
+    if ! iv=$(py_run -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json"); then failed=$((failed+1)); continue; fi
+    if ! rv=$(printf '%s' "$idx" | py_run -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name"); then failed=$((failed+1)); continue; fi
     if [ -n "$rv" ] && ver_newer "$iv" "$rv"; then
       if do_install "$name"; then n=$((n+1)); else failed=$((failed+1)); fi
     fi
@@ -428,7 +432,7 @@ cmd_doctor() {
   local idx rc=0 d name version remote manifest bin count=0
   if [ -z "$PY" ]; then echo "Python 3 : absent"; return 1; fi
   echo "Python 3 : disponible ($PY)"
-  if ! idx=$(fetch_index) || ! printf '%s' "$idx" | "$PY" -c 'import json,sys; assert isinstance(json.load(sys.stdin)["skills"],list)' 2>/dev/null; then
+  if ! idx=$(fetch_index) || ! printf '%s' "$idx" | py_run -c 'import json,sys; assert isinstance(json.load(sys.stdin)["skills"],list)' 2>/dev/null; then
     echo "Catalogue inaccessible ou invalide : diagnostic incomplet." >&2; rc=2
   fi
   for d in "$SKILLS_DIR"/*/; do
@@ -437,9 +441,9 @@ cmd_doctor() {
     name=$(basename "$d")
     if [ ! -f "$d/installed.json" ]; then echo "$name : non suivi"; [ "$rc" -eq 2 ] || rc=1
     else
-      version=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json" 2>/dev/null) || { echo "$name : métadonnées invalides"; [ "$rc" -eq 2 ] || rc=1; version=''; }
+      version=$(py_run -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json" 2>/dev/null) || { echo "$name : métadonnées invalides"; [ "$rc" -eq 2 ] || rc=1; version=''; }
       if [ "$rc" -ne 2 ] && [ -n "$version" ]; then
-        remote=$(printf '%s' "$idx" | "$PY" -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name" 2>/dev/null) || { echo "Catalogue illisible : diagnostic incomplet."; rc=2; remote=''; }
+        remote=$(printf '%s' "$idx" | py_run -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name" 2>/dev/null) || { echo "Catalogue illisible : diagnostic incomplet."; rc=2; remote=''; }
         if [ "$rc" -ne 2 ]; then
           if [ -z "$remote" ]; then echo "$name : absent du catalogue"; rc=1
           elif ver_newer "$version" "$remote"; then echo "$name : mise à jour disponible ($version -> $remote)"; rc=1
@@ -447,7 +451,7 @@ cmd_doctor() {
         fi
       fi
     fi
-    if ! manifest=$("$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); r=m.get("requires"); assert isinstance(r,dict) and isinstance(r.get("bins",[]),list); print("\n".join(r.get("bins",[])))' "$d/skill.json" 2>/dev/null); then
+    if ! manifest=$(py_run -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); r=m.get("requires"); assert isinstance(r,dict) and isinstance(r.get("bins",[]),list); print("\n".join(r.get("bins",[])))' "$d/skill.json" 2>/dev/null); then
       echo "$name : prérequis inconnus"; [ "$rc" -eq 2 ] || rc=1; continue
     fi
     while IFS= read -r bin; do

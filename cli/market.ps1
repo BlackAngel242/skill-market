@@ -382,9 +382,10 @@ switch ($Command) {
     "Version     : $($s.version)"
     "Auteur      : $($s.author)"
     "Description : $($s.description)"
+    if (-not (Test-SafeSkillPath $s.path)) { throw 'Chemin invalide.' }
+    try { $m = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$Repo/$Branch/$($s.path)/skill.json" }
+    catch { 'Fiche inaccessible (réseau).'; break }
     try {
-      if (-not (Test-SafeSkillPath $s.path)) { throw 'Chemin invalide.' }
-      $m = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$Repo/$Branch/$($s.path)/skill.json"
       if (-not $m) { throw 'Manifeste illisible.' }
       $licence = if ($m.license) { $m.license } else { 'non renseigné' }
       $requires = 'prérequis inconnus'
@@ -400,7 +401,7 @@ switch ($Command) {
     } catch { 'Licence     : non renseigné'; 'Prérequis   : prérequis inconnus' }
   }
   "install" {
-    if (-not $Arg1) { Write-Host "Usage : market.ps1 install <skill> [-y]"; exit 1 }
+    if (-not $Arg1) { Write-Host "Usage : market.ps1 install <skill> [--force] [-y]"; exit 1 }
     $replace = $Force.IsPresent
     foreach ($arg in @($Arg2) + @($ExtraArgs)) {
       if ($arg -in '-y','--yes') { $env:ASSUME_YES = '1' }
@@ -410,8 +411,13 @@ switch ($Command) {
     Install-Skill $Arg1 $replace
   }
   "upgrade" {
-    if (-not $Arg1) { Write-Host "Usage : market.ps1 upgrade <skill>"; exit 1 }
-    $replace = $Force.IsPresent -or $Arg2 -in '--force','-Force'
+    if (-not $Arg1) { Write-Host "Usage : market.ps1 upgrade <skill> [--force] [-y]"; exit 1 }
+    $replace = $Force.IsPresent
+    foreach ($arg in @($Arg2) + @($ExtraArgs)) {
+      if ($arg -in '-y','--yes') { $env:ASSUME_YES = '1' }
+      elseif ($arg -in '--force','-Force') { $replace = $true }
+      elseif ($arg) { throw "Option inconnue : $arg" }
+    }
     Install-Skill $Arg1 $replace
   }
   "doctor" { exit (Show-Doctor) }
