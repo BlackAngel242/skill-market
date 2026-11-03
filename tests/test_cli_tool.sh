@@ -26,10 +26,14 @@ saved=$(find "$MARKET_HOME/backup" -name local.txt)
 case "$saved" in "$HOME/.claude/skills/"*) echo 'KO: sauvegarde dans le dossier client' >&2; exit 1;; esac
 MARKET_TOOL=claude run installed | grep -q prd-table-ronde
 for client in codex cursor agents; do
-  mkdir -p "$HOME/.$client/skills/demo"
-  printf '%s\n' '{"name":"demo","version":"1.0.0"}' > "$HOME/.$client/skills/demo/installed.json"
+  folder="$client"; [ "$client" != codex ] || folder=agents
+  mkdir -p "$HOME/.$folder/skills/demo"
+  printf '%s\n' '{"name":"demo","version":"1.0.0"}' > "$HOME/.$folder/skills/demo/installed.json"
   run installed --tool "$client" | grep -q 'demo 1.0.0'
 done
+mkdir -p "$HOME/.codex/skills/legacy"
+printf '%s\n' '{"name":"legacy","version":"1.0.0"}' > "$HOME/.codex/skills/legacy/installed.json"
+if run installed --tool codex | grep -q legacy; then echo 'KO: ancien répertoire Codex utilisé' >&2; exit 1; fi
 if run installed --tool nonsense; then echo 'KO: client inconnu' >&2; exit 1; fi
 if run installed --tool claude --bogus; then echo 'KO: option inconnue' >&2; exit 1; fi
 if MARKET_HOME="$HOME/.claude/skills" run install prd-table-ronde --tool claude --force; then echo 'KO: sauvegarde dans le dossier client' >&2; exit 1; fi

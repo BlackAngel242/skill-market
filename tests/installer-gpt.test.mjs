@@ -24,6 +24,22 @@ function run(root, ...args) {
   if (r.error) throw r.error;
   return r;
 }
+test('Codex utilise .agents/skills en portée utilisateur et projet', async () => {
+  const root = await fixture();
+  try {
+    const home = join(root, 'profil');
+    const project = join(root, 'projet');
+    await mkdir(home); await mkdir(project);
+    for (const scope of ['user', 'project']) {
+      const result = spawnSync(process.execPath, [join(root, 'scripts', 'install-skills.mjs'), '--tool', 'codex', '--scope', scope, '--dry-run'], {
+        cwd: project, env: { ...process.env, HOME: home, USERPROFILE: home, CODEX_HOME: join(root, 'autre') }, encoding: 'utf8', timeout: 20000
+      });
+      if (result.error) throw result.error;
+      assert.equal(result.status, 0, result.stderr);
+      assert.ok(result.stdout.includes(join(scope === 'user' ? home : project, '.agents', 'skills')), result.stdout);
+    }
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
 test('prévisualisation : aucune écriture', async () => {
   const root = await fixture();
   try {

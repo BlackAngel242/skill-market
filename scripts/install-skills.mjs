@@ -50,7 +50,7 @@ function parse(args) {
 function destination(opts) {
   if (opts.dir) return resolve(opts.dir);
   const mapping = {
-    codex: { user: ['.codex','skills'], project: ['.agents','skills'] },
+    codex: { user: ['.agents','skills'], project: ['.agents','skills'] },
     claude: { user: ['.claude','skills'], project: ['.claude','skills'] },
     cursor: { user: ['.cursor','skills'], project: ['.cursor','skills'] }
   };

@@ -57,7 +57,8 @@ $SkillsDir = switch ($client) {
   { -not $_ } { Join-Path $MarketHome 'skills'; break }
   { $_ -cin @('claude','codex','cursor','agents') } {
     $clientHome = if ($env:OS -eq 'Windows_NT' -and $env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { $HOME }
-    Join-Path (Join-Path $clientHome ".$client") 'skills'; break
+    $folder = if ($client -eq 'codex') { '.agents' } else { ".$client" }
+    Join-Path (Join-Path $clientHome $folder) 'skills'; break
   }
   default { throw "Client inconnu : $client" }
 }

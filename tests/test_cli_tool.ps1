@@ -4,7 +4,9 @@ $cli = Join-Path $root 'cli/market.ps1'
 $engine = (Get-Process -Id $PID).Path
 $testRoot = Join-Path ([IO.Path]::GetTempPath()) ('market-tools-' + [guid]::NewGuid().ToString('N'))
 $oldUser = $env:USERPROFILE; $oldHome = $env:HOME; $oldMarket = $env:MARKET_HOME; $oldTool = $env:MARKET_TOOL
+$oldLocal = $env:LOCALAPPDATA; $oldApp = $env:APPDATA; $oldCache = $env:PSModuleAnalysisCachePath
 $env:USERPROFILE = Join-Path $testRoot 'profile'; $env:HOME = $env:USERPROFILE; $env:MARKET_HOME = Join-Path $testRoot 'market'; $env:MARKET_TOOL = ''
+$env:LOCALAPPDATA = Join-Path $env:USERPROFILE 'AppData/Local'; $env:APPDATA = Join-Path $env:USERPROFILE 'AppData/Roaming'; $env:PSModuleAnalysisCachePath = Join-Path $testRoot 'module-cache'
 function Invoke-Market([string[]]$MarketArgs, [int]$Expected = 0) {
   $previous = $ErrorActionPreference
   try { $ErrorActionPreference = 'Continue'; $result = & $engine -NoProfile -ExecutionPolicy Bypass -File $cli @MarketArgs 2>&1 | Out-String; $code = $LASTEXITCODE }
@@ -13,7 +15,11 @@ function Invoke-Market([string[]]$MarketArgs, [int]$Expected = 0) {
   return $result
 }
 try {
-  New-Item -ItemType Directory -Path $env:USERPROFILE -Force | Out-Null
+  New-Item -ItemType Directory -Path $env:LOCALAPPDATA, $env:APPDATA -Force | Out-Null
+  $probe = Join-Path $testRoot 'profile-check.ps1'
+  '[Environment]::GetFolderPath("LocalApplicationData"); $env:PSModuleAnalysisCachePath' | Set-Content -LiteralPath $probe -Encoding UTF8
+  $profileResult = @(& $engine -NoProfile -File $probe)
+  if ($LASTEXITCODE -ne 0 -or $profileResult[0] -ne $env:LOCALAPPDATA -or $profileResult[1] -ne $env:PSModuleAnalysisCachePath) { throw 'Profil ou cache temporaire non appliqué au processus enfant.' }
   $dest = Join-Path $env:USERPROFILE '.claude/skills/prd-table-ronde'
   Invoke-Market @('install','prd-table-ronde','--tool','claude') | Out-Null
   if (-not (Test-Path -LiteralPath (Join-Path $dest 'installed.json'))) { throw 'Installation introuvable.' }
@@ -35,11 +41,16 @@ try {
   if ($saved[0].FullName.StartsWith((Join-Path $env:USERPROFILE '.claude/skills'), [StringComparison]::OrdinalIgnoreCase)) { throw 'Sauvegarde dans le dossier client.' }
   $env:MARKET_TOOL='claude'; if ((Invoke-Market @('installed')) -notmatch 'prd-table-ronde') { throw 'MARKET_TOOL ignoré.' }; $env:MARKET_TOOL=''
   foreach ($client in @('codex','cursor','agents')) {
-    $clientDir = Join-Path $env:USERPROFILE ".$client/skills/demo"
+    $folder = if ($client -eq 'codex') { 'agents' } else { $client }
+    $clientDir = Join-Path $env:USERPROFILE ".$folder/skills/demo"
     New-Item -ItemType Directory -Path $clientDir -Force | Out-Null
     '{"name":"demo","version":"1.0.0"}' | Set-Content -LiteralPath (Join-Path $clientDir 'installed.json')
     if ((Invoke-Market @('installed','--tool',$client)) -notmatch 'demo 1.0.0') { throw "Chemin $client incorrect." }
   }
+  $legacyDir = Join-Path $env:USERPROFILE '.codex/skills/legacy'
+  New-Item -ItemType Directory -Path $legacyDir -Force | Out-Null
+  '{"name":"legacy","version":"1.0.0"}' | Set-Content -LiteralPath (Join-Path $legacyDir 'installed.json')
+  if ((Invoke-Market @('installed','--tool','codex')) -match 'legacy') { throw 'Ancien répertoire Codex utilisé.' }
   Invoke-Market @('installed','--tool','nonsense') 1 | Out-Null
   Invoke-Market @('installed','--tool','claude','--bogus') 1 | Out-Null
   $backupHome = $env:MARKET_HOME
@@ -50,5 +61,6 @@ try {
   Write-Output 'OK: client claude, sauvegarde, refus, options et suppression.'
 } finally {
   $env:USERPROFILE=$oldUser; $env:HOME=$oldHome; $env:MARKET_HOME=$oldMarket; $env:MARKET_TOOL=$oldTool
+  $env:LOCALAPPDATA=$oldLocal; $env:APPDATA=$oldApp; $env:PSModuleAnalysisCachePath=$oldCache
   if (Test-Path -LiteralPath $testRoot) { Remove-Item -LiteralPath $testRoot -Recurse -Force }
 }
