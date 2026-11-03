@@ -1,5 +1,12 @@
 # LESSONS.md : leçons mémorisées entre sessions IA
 
+## 2026-11-01 : création d'un skill orienté Pinterest et apprentissage
+- **La référence n'est pas une preuve de popularité.** Une URL Pinterest ou une image jolie ne démontre ni réactions chiffrées ni conversions. Distinguer observation et inférence.
+- **Un essaim peut être logique, pas forcément technique.** Vérifier l'existence de véritables sous-agents ; documenter le mode séquentiel, sans faux parallélisme.
+- **Un retour unique ne doit pas devenir une règle globale.** Conserver la portée, exiger confirmation et approbation pour adopter une préférence; garder une procédure réversible.
+- **L'import dans ChatGPT n'est pas une copie GitHub.** Distribuer le skill dans le catalogue et fournir un ZIP ne signifie pas qu'il soit activé dans un compte.
+
+
 ## 2026-10-31 : audit de l'installateur et corrections pré-fusion
 
 - **Frontmatter sur Windows.** Les fichiers .md peuvent être lus en CRLF après checkout ; normaliser les fins de ligne **pour la validation uniquement**, sans altérer les octets des ZIP.

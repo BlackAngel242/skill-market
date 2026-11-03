@@ -12,7 +12,7 @@ class PackagingTest(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='skillmarket-gpt-')
         self.root = Path(self.temp.name)
-        for name in ('fixit', 'prd-table-ronde'):
+        for name in ('fixit', 'prd-table-ronde', 'afficheux'):
             folder = self.root / 'skills' / name
             (folder / 'references').mkdir(parents=True)
             (folder / 'SKILL.md').write_text(f'---\nname: {name}\ndescription: Test.\n---\nContenu', encoding='utf-8')
@@ -37,6 +37,8 @@ class PackagingTest(unittest.TestCase):
         self.assertEqual(self.run_script('--check').returncode, 0)
         r = self.run_script()
         self.assertEqual(r.returncode, 0, r.stderr)
+        with ZipFile(self.root / 'dist' / 'AfficheUX-ChatGPT.zip') as z:
+            self.assertIn('afficheux/SKILL.md', z.namelist())
         with ZipFile(self.root / 'dist' / 'TableRonde-ChatGPT.zip') as z:
             self.assertIn('prd-table-ronde/references/detail.md', z.namelist())
         with ZipFile(self.root / 'dist' / 'SkillMarket-GPT-Plugin.zip') as z:

@@ -10,6 +10,13 @@
       "version": "2.2.0"
     },
     {
+      "name": "afficheux",
+      "version": "1.0.0",
+      "description": "Essaim de direction artistique : Pinterest vérifiable, analyse UX, sélection humaine, création, contrôle Fixit et apprentissage traçable.",
+      "path": "skills/afficheux",
+      "author": "BlackAngel242"
+    },
+    {
       "name": "uxfix",
       "version": "1.0.0",
       "description": "Corrige seul les défauts UI : boucle détecter→corriger→revérifier jusqu'à un score de 99/100. Contrastes, halos, easings, interlettrage, palettes, copy marketing.",
