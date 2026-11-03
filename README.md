@@ -100,7 +100,7 @@ market remove uxfix              # désinstalle
 market publish skills/<nom>    # valide un skill avant soumission (PR)
 ```
 
-Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer). Avant tout remplacement (`upgrade`, `update`, `--force`), l'ancienne copie est déplacée dans `~/.skill-market/backup/<nom>-<version>-<horodatage>/`, puis restaurée si la nouvelle copie échoue. Un dossier qui n'a pas été installé par `market` n'est jamais écrasé sans `--force`.
+Les skills s'installent dans `~/.skill-market/skills/<nom>` (variable `MARKET_HOME` pour changer). Avant tout remplacement (`upgrade`, `update`, `--force`), l'ancienne copie est déplacée dans `~/.skill-market/backup/<nom>-<version>-<horodatage>-<identifiant>/`, puis restaurée si la nouvelle copie échoue. Un dossier qui n'a pas été installé par `market` n'est jamais écrasé sans `--force`. Les sauvegardes ne sont pas purgées automatiquement : supprime-les à la main quand tu n'en as plus besoin. Si une installation est interrompue (fenêtre fermée, coupure), la copie précédente reste dans `backup/` : la remettre dans `skills/<nom>`.
 
 Codes de sortie : `0` succès ; non nul si un prérequis manque ou est refusé, si un téléchargement ou une installation npm/pip échoue, ou si `update` a au moins un échec. `market doctor` renvoie `0` (rien à signaler), `1` (anomalie) ou `2` (diagnostic incomplet, catalogue inaccessible).
 

@@ -5,10 +5,7 @@
 - **Un test qui avale toute exception ne teste rien.** `security-cli-inputs.ps1` affichait OK sous PowerShell 5.1 alors que `market.ps1` ne parsait même pas (`catch {}` vide). Règle : vérifier la raison exacte du refus, et prouver qu'un cas légitime passe encore.
 - **La CI doit tourner sur le moteur documenté.** Le README donne `powershell` (5.1) mais la CI ne testait que `pwsh` 7 : l'opérateur `??` et l'absence de BOM cassaient le CLI pour tout utilisateur Windows par défaut. Règle : tester les deux moteurs ; garder `market.ps1` en UTF-8 avec BOM, sans syntaxe PS7.
 - **Sous 5.1, `ErrorActionPreference = "Stop"` + `2>&1` sur une commande native lève une erreur** dès que la commande écrit sur stderr. Règle : repasser à `Continue` autour de l'appel.
-- **Un fixture CRLF doit partir de LF.** Sur un checkout Windows (`core.autocrlf=true`), remplacer `
-` par `
-` produit `
-`. Règle : normaliser d'abord.
+- **Un fixture CRLF doit partir de LF.** Sur un checkout Windows (`core.autocrlf=true`), convertir LF en CRLF sur un fichier déjà en CRLF produit CR CR LF, et le frontmatter devient invalide. Règle : ramener d'abord en LF, puis convertir.
 - **`python3` peut être l'alias du Microsoft Store** sous Git Bash : il existe pour `command -v` mais ne lance rien. Règle : tester l'interpréteur en l'exécutant, se rabattre sur `python`.
 - **Branches fusionnées en squash.** Un `git log main..branche` non vide ne prouve pas un travail non intégré ; comparer l'arbre (`git diff <branche> <commit de squash>`).
 
