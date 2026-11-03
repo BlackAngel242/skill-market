@@ -5,7 +5,7 @@
 #   market list                catalogue distant
 #   market search <mot>        recherche dans le catalogue
 #   market info <skill>        fiche d'un skill
-#   market install <skill> [--force] [-y]  installe en global
+#   market install <skill> [--tool <client>] [--force] [-y]  installe en global
 #   market upgrade <skill> [--force]  met à jour un skill installé
 #   market update              met à jour tous les skills installés
 #   market remove <skill>      désinstalle
@@ -17,13 +17,27 @@
 #   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
 #   MARKET_BRANCH  branche (défaut : main)
 #   MARKET_HOME    dossier d'installation (défaut : ~/.skill-market)
+#   MARKET_TOOL    client : claude, codex, cursor ou agents
 #
 set -euo pipefail
 
 REPO="${MARKET_REPO:-BlackAngel242/skill-market}"
 BRANCH="${MARKET_BRANCH:-main}"
 MARKET_HOME="${MARKET_HOME:-$HOME/.skill-market}"
-SKILLS_DIR="$MARKET_HOME/skills"
+TOOL="${MARKET_TOOL:-}"
+args=(); command="${1:-}"; [ $# -eq 0 ] || shift
+while [ $# -gt 0 ]; do
+  if [ "$1" = "--tool" ]; then
+    [ $# -ge 2 ] && [ -n "$2" ] && [[ "$2" != -* ]] || { echo "--tool exige un client." >&2; exit 1; }
+    TOOL="$2"; shift 2
+  else args+=("$1"); shift; fi
+done
+set -- "$command" "${args[@]}"
+case "$TOOL" in
+  '') SKILLS_DIR="$MARKET_HOME/skills" ;;
+  claude|codex|cursor|agents) SKILLS_DIR="$HOME/.$TOOL/skills" ;;
+  *) echo "Client inconnu : $TOOL" >&2; exit 1 ;;
+esac
 INDEX_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/index.json"
 REPO_URL="https://github.com/${REPO}.git"
 
@@ -191,6 +205,15 @@ do_install() {
   local name="$1" force="${2:-0}" version path iv=untracked tmp dest backup=""
   require_skill_name "$name" || return 1
   need_python
+  if [ -n "$TOOL" ] && ! py_run -c 'import os,sys
+home,backup=map(os.path.realpath,sys.argv[1:])
+for client in ("claude","codex","cursor","agents"):
+ root=os.path.normcase(os.path.join(home,"."+client,"skills")); dest=os.path.normcase(backup)
+ try: inside=os.path.commonpath((root,dest)) == root
+ except ValueError: inside=False
+ if inside: sys.exit(1)' "$HOME" "$MARKET_HOME/backup"; then
+    echo "Sauvegarde interdite dans un dossier de skills client : $MARKET_HOME/backup" >&2; return 1
+  fi
   version=$(skill_field "$name" version) || return 1
   path=$(skill_field "$name" path) || return 1
   [ -n "$version" ] || { echo "Skill '$name' introuvable." >&2; return 1; }
@@ -476,13 +499,15 @@ case "${1:-}" in
              name=$2; shift 2; force=0
              for arg in "$@"; do case "$arg" in -y|--yes) ASSUME_YES=1 ;; --force|-Force) force=1 ;; *) echo "Option inconnue : $arg" >&2; exit 1 ;; esac; done
              do_install "$name" "$force" ;;
-  doctor)    cmd_doctor ;;
-  update)    cmd_update ;;
+  doctor)    [ $# -eq 1 ] || { echo "Option inconnue : $2" >&2; exit 1; }; cmd_doctor ;;
+  update)    [ $# -eq 1 ] || { echo "Option inconnue : $2" >&2; exit 1; }; cmd_update ;;
   remove)
              [ $# -ge 2 ] || { echo "Usage : market remove <skill>" >&2; exit 1; }
+             [ $# -eq 2 ] || { echo "Option inconnue : $3" >&2; exit 1; }
              require_skill_name "$2" || exit 1
+             [ -z "$TOOL" ] || [ -f "$SKILLS_DIR/$2/installed.json" ] || { echo "Skill non suivi par market : $2" >&2; exit 1; }
              rm -rf -- "$SKILLS_DIR/$2" && echo "$2 désinstallé." ;;
-  installed) cmd_installed ;;
+  installed) [ $# -eq 1 ] || { echo "Option inconnue : $2" >&2; exit 1; }; cmd_installed ;;
   publish)   cmd_publish "${2:-.}" ;;
   -h|--help|help|"") usage ;;
   *) echo "Commande inconnue : $1" >&2; usage >&2; exit 1 ;;
