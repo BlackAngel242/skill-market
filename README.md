@@ -3,7 +3,7 @@
 Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI qui installe en global, détecte les outils présents sur la machine et gère les mises à jour.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Skills](https://img.shields.io/badge/skills-24-blue.svg)](#catalogue)
+[![Skills](https://img.shields.io/badge/skills-25-blue.svg)](#catalogue)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-lightgrey.svg)](#installer-le-cli)
 
 ![Démo du CLI market](assets/demo-powershell.gif)
@@ -136,6 +136,13 @@ AfficheUX est un **skill maître** qui orchestre un essaim de rôles : brief, pi
 - L'archive `AfficheUX-ChatGPT.zip` peut être créée par `python scripts/build-chatgpt.py` pour un import manuel dans un compte compatible.
 - La mémoire explicite d'apprentissage reste dans un dossier de projet autorisé, jamais prétendument synchronisée en silence.
 
+## herdr-team — une équipe d'IA qui apprend ensemble
+
+Pour qui lance plusieurs agents (Codex, Claude, opencode, agy, omp...) dans [Herdr](https://herdr.dev) : `herdr-team` les fait travailler en parallèle par fichiers (`herdr-ask`, fin de réponse prouvée par une sentinelle, une tâche par agent), organise un brainstorm en tours (propositions, critique croisée, décision soumise à l'utilisateur) et fait progresser l'équipe : chaque réponse rapporte erreurs, astuces et méthodes, chaque correction est expliquée (quoi, pourquoi, comment, comment l'éviter), et une mémoire commune `LECONS.md` est lue avant chaque mission, d'un projet à l'autre.
+
+- Installer : `market install herdr-team`, puis copier `scripts/herdr-ask` et les fichiers de `references/` comme indiqué dans le `SKILL.md`.
+- Prérequis : `herdr`, `bash` (Git Bash sous Windows).
+
 ## Catalogue
 
 | Skill | Version | Description |
@@ -164,6 +171,7 @@ AfficheUX est un **skill maître** qui orchestre un essaim de rôles : brief, pi
 | `animate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Animation procédurale en code (par cth9191, MIT) : storyboard d'abord, styles prédéfinis, synchro musicale. |
 | `remotion-motion-graphics` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Motion graphics avec Remotion (par haidrrrry, MIT) : sous-titres, B-roll et son depuis un seul prompt. |
 | `explainroo` | ![0.4.1](https://img.shields.io/badge/v0.4.1-blue) | Vidéos explicatives et démos produit narrées (par vincentsch, MIT) : voix locale Kokoro dont le français, timing Whisper, dessins canvas calés sur la narration, MP4 + sous-titres. Aucune clé API. |
+| `herdr-team` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Équipe d'agents IA dans Herdr : brainstorm en plusieurs tours, critique croisée, décision, travail parallèle par fichiers, et apprentissage en essaim (chaque correction expliquée, mémoire commune entre projets). |
 
 ### Skills vidéo et motion : lequel choisir
 
