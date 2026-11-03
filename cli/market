@@ -425,7 +425,7 @@ cmd_update() {
 }
 
 cmd_doctor() {
-  local idx rc=0 d name version remote manifest bin
+  local idx rc=0 d name version remote manifest bin count=0
   if [ -z "$PY" ]; then echo "Python 3 : absent"; return 1; fi
   echo "Python 3 : disponible ($PY)"
   if ! idx=$(fetch_index) || ! printf '%s' "$idx" | "$PY" -c 'import json,sys; assert isinstance(json.load(sys.stdin)["skills"],list)' 2>/dev/null; then
@@ -433,6 +433,7 @@ cmd_doctor() {
   fi
   for d in "$SKILLS_DIR"/*/; do
     [ -d "$d" ] || continue
+    count=$((count+1))
     name=$(basename "$d")
     if [ ! -f "$d/installed.json" ]; then echo "$name : non suivi"; [ "$rc" -eq 2 ] || rc=1
     else
@@ -454,6 +455,7 @@ cmd_doctor() {
       if command -v "$bin" >/dev/null 2>&1; then echo "$name : $bin présent"; else echo "$name : $bin manquant"; [ "$rc" -eq 2 ] || rc=1; fi
     done <<< "$manifest"
   done
+  [ "$count" -ne 0 ] || echo "Aucun skill installé."
   return "$rc"
 }
 

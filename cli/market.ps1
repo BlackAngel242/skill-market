@@ -213,10 +213,11 @@ Usage : market.ps1 <commande> [arguments]
 }
 
 function Show-Doctor {
-  $code = 0; $idx = $null
+  $code = 0; $idx = $null; $count = 0
   try { $idx = @(Get-Index) } catch { Write-Host 'Catalogue inaccessible : diagnostic incomplet.'; $code = 2 }
   if (Test-Path -LiteralPath $SkillsDir) {
     foreach ($d in @(Get-ChildItem -LiteralPath $SkillsDir -Directory)) {
+      $count++
       $metaFile = Join-Path $d.FullName 'installed.json'
       if (-not (Test-Path -LiteralPath $metaFile)) { Write-Host "$($d.Name) : non suivi"; if ($code -ne 2) { $code = 1 } }
       else {
@@ -241,6 +242,7 @@ function Show-Doctor {
       } catch { Write-Host "$($d.Name) : prérequis inconnus"; if ($code -ne 2) { $code = 1 } }
     }
   }
+  if ($count -eq 0) { Write-Host 'Aucun skill installé.' }
   return $code
 }
 
@@ -377,7 +379,15 @@ switch ($Command) {
       $m = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$Repo/$Branch/$($s.path)/skill.json"
       if (-not $m) { throw 'Manifeste illisible.' }
       $licence = if ($m.license) { $m.license } else { 'non renseigné' }
-      $requires = if ($m.requires) { $m.requires | ConvertTo-Json -Compress -Depth 5 } else { 'prérequis inconnus' }
+      $requires = 'prérequis inconnus'
+      if ($null -ne $m.requires) {
+        if ($m.requires -isnot [pscustomobject]) { throw 'Prérequis invalides.' }
+        $parts = foreach ($entry in $m.requires.PSObject.Properties) {
+          if ($entry.Value -isnot [array] -or @($entry.Value | Where-Object { $_ -isnot [string] }).Count) { throw 'Prérequis invalides.' }
+          if ($entry.Value.Count) { $entry.Name + ': ' + ($entry.Value -join ', ') }
+        }
+        $requires = if ($parts) { $parts -join '; ' } else { 'aucun déclaré' }
+      }
       "Licence     : $licence"; "Prérequis   : $requires"
     } catch { 'Licence     : non renseigné'; 'Prérequis   : prérequis inconnus' }
   }
