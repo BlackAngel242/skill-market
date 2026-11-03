@@ -1,0 +1,251 @@
+{
+  "name": "blackangel242-skill-market",
+  "description": "Catalogue skill-market : un plugin Claude Code par skill.",
+  "owner": {
+    "name": "BlackAngel242",
+    "url": "https://github.com/BlackAngel242/skill-market"
+  },
+  "plugins": [
+    {
+      "name": "prd-table-ronde",
+      "source": "./skills/prd-table-ronde",
+      "description": "Transforme une idee, un brief ou une maquette en PRD cadree et constructible, via une table ronde d'experts dimensionnee.",
+      "version": "2.2.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "afficheux",
+      "source": "./skills/afficheux",
+      "description": "Essaim de direction artistique : Pinterest vérifiable, analyse UX, sélection humaine, création, contrôle Fixit et apprentissage traçable.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "uxfix",
+      "source": "./skills/uxfix",
+      "description": "Corrige seul les défauts UI : boucle détecter→corriger→revérifier jusqu'à un score de 99/100. Contrastes, halos, easings, interlettrage, palettes, copy marketing.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "smokekit-ai-workflow-orchestration",
+      "source": "./skills/smokekit-ai-workflow-orchestration",
+      "description": "Orchestration multi-IA auto-evolutive : 20 agents SDLC, router reel avec detection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections.",
+      "version": "4.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      },
+      "license": "MIT"
+    },
+    {
+      "name": "fixit",
+      "source": "./skills/fixit",
+      "description": "Contrôle qualité adaptatif : revue visuelle, critique UX de parcours, technique et contenu, avec preuves, corrections autorisées et réinspection.",
+      "version": "2.1.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "wassup",
+      "source": "./skills/wassup",
+      "description": "État des lieux d’un dépôt : compare docs, plans, issues et code réel, signale les désynchronisations et propose les 3 prochaines actions. Mode portefeuille, sortie JSON, contrôles pilotage.",
+      "version": "1.1.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "collect",
+      "source": "./skills/collect",
+      "description": "Trouve les problèmes d'un projet depuis plusieurs sources et les classe en tickets vérifiés, sans rien modifier. Dry-run par défaut.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "secretscan",
+      "source": "./skills/secretscan",
+      "description": "Détecte les secrets committés : fichiers .env, clés API et tokens en dur dans le code, clés privées. Signale sans jamais afficher les valeurs.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "merge-gate",
+      "source": "./skills/merge-gate",
+      "description": "Checklist avant fusion : base à jour, vérifications au vert, commit relu épinglé, pas de force push. Verdict GO / NO-GO motivé.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-launch",
+      "source": "./skills/motion-launch",
+      "description": "Prépare une vidéo de lancement produit : script, structure, accroches, plan caméra et étalonnage, à partir du lien ou de la description du produit. Version typographique sans voix off par défaut.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-graphics",
+      "source": "./skills/motion-graphics",
+      "description": "Conçoit des graphiques animés : titres, lower thirds, transitions, infographies animées. Familles d'effets, règles de lisibilité, exports.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "rush-cut",
+      "source": "./skills/rush-cut",
+      "description": "Prépare le montage de rushs : plan de coupes (blancs, ratés), animations à ajouter, sous-titres. Timecodes et fichier SRT.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-illustrate",
+      "source": "./skills/motion-illustrate",
+      "description": "Crée des plans d'illustration calés sur la narration et détoure les sujets. Storyboard visuel phrase par phrase.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "explainer-storyboard",
+      "source": "./skills/explainer-storyboard",
+      "description": "Vidéos explicatives : choisit parmi 7 styles, produit toujours le storyboard AVANT toute animation.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-sound",
+      "source": "./skills/motion-sound",
+      "description": "Sound design des vidéos : choix musical, effets sonores, mixage voix/musique/bruitages, timing.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-web",
+      "source": "./skills/motion-web",
+      "description": "Anime une interface web à partir d'une phrase : boutons, cartes, transitions de pages. Code CSS/JS propre et performant.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "motion-principles",
+      "source": "./skills/motion-principles",
+      "description": "Les 12 principes d'animation Disney, traduits en règles pratiques pour que les animations aient l'air faites par un humain.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      }
+    },
+    {
+      "name": "product-launch-motion",
+      "source": "./skills/product-launch-motion",
+      "description": "Vidéos de lancement produit cinématiques générées en code : mouvements de caméra, étalonnage, son calé sur le rythme.",
+      "version": "1.1.0",
+      "author": {
+        "name": "AbubakrChan"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/AbubakrChan/product-launch-motion"
+    },
+    {
+      "name": "motion-graphics-skills",
+      "source": "./skills/motion-graphics-skills",
+      "description": "15 skills de motion graphics pour vidéos de lancement : tout est généré en code, sans After Effects.",
+      "version": "1.0.0",
+      "author": {
+        "name": "charlie947"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/charlie947/motion-graphics-skills"
+    },
+    {
+      "name": "motion-kit-whaleyxbt",
+      "source": "./skills/claude-motion",
+      "description": "Toolkit motion design pour agents : design, sound design, boucle de review, simulations web.",
+      "version": "1.0.0",
+      "author": {
+        "name": "whaleyxbt"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/whaleyxbt/claude-motion"
+    },
+    {
+      "name": "motion-design",
+      "source": "./skills/motion-design",
+      "description": "Principes universels de motion design pour agents : timing, easing, chorégraphie, 12 principes Disney adaptés aux UI.",
+      "version": "1.0.0",
+      "author": {
+        "name": "LottieFiles"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/LottieFiles/motion-design-skill"
+    },
+    {
+      "name": "animate",
+      "source": "./skills/animate",
+      "description": "Animation procédurale en code : storyboard d'abord, styles prédéfinis, synchronisation musicale.",
+      "version": "1.0.0",
+      "author": {
+        "name": "cth9191"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/cth9191/animate"
+    },
+    {
+      "name": "remotion-motion-graphics",
+      "source": "./skills/remotion-motion-graphics",
+      "description": "Motion graphics avec Remotion : sous-titres, B-roll et son depuis un seul prompt.",
+      "version": "1.0.0",
+      "author": {
+        "name": "haidrrrry"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/haidrrrry/claude-remotion-skill"
+    },
+    {
+      "name": "explainroo",
+      "source": "./skills/explainroo",
+      "description": "Vidéos explicatives et démos produit narrées, fabriquées par l'agent : voix locale Kokoro (dont le français), timing mot à mot par Whisper, dessins canvas synchronisés sur la narration, MP4 avec sous-titres et image de couverture. Aucune clé API requise.",
+      "version": "0.4.1",
+      "author": {
+        "name": "vincentsch"
+      },
+      "license": "MIT (upstream)",
+      "homepage": "https://github.com/vincentsch/explainroo"
+    },
+    {
+      "name": "herdr-team",
+      "source": "./skills/herdr-team",
+      "description": "Fait travailler ensemble des agents IA lancés dans Herdr : brainstorm en plusieurs tours, critique croisée, décision, travail parallèle, avec une mémoire commune qui fait progresser l'équipe d'un projet à l'autre.",
+      "version": "1.0.0",
+      "author": {
+        "name": "BlackAngel242"
+      },
+      "license": "MIT"
+    }
+  ]
+}
