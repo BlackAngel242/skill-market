@@ -92,10 +92,18 @@ function Get-SkillFiles($RepoPath, $Dest) {
       Copy-Item (Join-Path $r $RepoPath) -Destination $Dest -Recurse -Force
     } else {
       $zip = Join-Path $tmp "repo.zip"
-      Invoke-WebRequest -Uri "https://github.com/$Repo/archive/refs/heads/$Branch.zip" -OutFile $zip
-      Expand-Archive -Path $zip -DestinationPath $tmp
-      $base = Get-ChildItem -Path $tmp -Directory | Select-Object -First 1
-      Copy-Item (Join-Path $base.FullName $RepoPath) -Destination $Dest -Recurse -Force
+      try {
+        Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/$Repo/archive/refs/heads/$Branch.zip" -OutFile $zip
+      } catch { throw "Téléchargement ZIP impossible : $($_.Exception.Message)" }
+      try {
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $tmp)
+      } catch { throw "Extraction ZIP impossible : $($_.Exception.Message)" }
+      $bases = @(Get-ChildItem -LiteralPath $tmp -Directory)
+      if ($bases.Count -ne 1) { throw 'Archive ZIP invalide : dossier racine absent ou ambigu.' }
+      $source = Join-Path $bases[0].FullName $RepoPath
+      if (-not (Test-Path -LiteralPath $source -PathType Container)) { throw "Skill absent de l'archive ZIP : $RepoPath" }
+      Copy-Item -LiteralPath $source -Destination $Dest -Recurse -Force
     }
   } finally {
     Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue
