@@ -91,7 +91,7 @@ Note : via `npx skills add`, seuls les fichiers du skill sont copiés. La détec
 |---|---|---|
 | `market install <nom>` | `~/.skill-market/skills/<nom>` (`MARKET_HOME`) | catalogue complet, détection des outils requis, mises à jour par version |
 | `npx skills add ...` | dossier de skills du client choisi | copie simple, sans contrôle des prérequis |
-| `node scripts/install-skills.mjs --tool <client>` | `.codex/skills`, `.claude/skills` ou `.cursor/skills` | Fixit et PRD Table Ronde seulement, sans réseau, `--replace` avec sauvegarde |
+| `node scripts/install-skills.mjs --tool <client>` | `.agents/skills` (Codex), `.claude/skills` ou `.cursor/skills` | Fixit et PRD Table Ronde seulement, sans réseau, `--replace` avec sauvegarde |
 | `python scripts/build-chatgpt.py` | `dist/*.zip` | import manuel dans un compte ChatGPT compatible |
 
 Un skill copié sur le disque n'est pas forcément découvert par ton client : vérifie qu'il apparaît dans la liste des skills du client.
