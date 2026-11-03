@@ -36,7 +36,7 @@ def marketplace(root):
         plugin = {
             "name": PLUGIN_NAMES.get(entry["name"], entry["name"]),
             "source": "./" + entry["path"],
-            "description": entry["description"],
+            "description": entry["description"] + (f" (skill : {entry['name']})" if entry["name"] in PLUGIN_NAMES else ""),
             "version": entry["version"],
             "author": {"name": entry.get("author", "BlackAngel242")},
         }

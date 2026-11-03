@@ -185,7 +185,7 @@
     {
       "name": "motion-kit-whaleyxbt",
       "source": "./skills/claude-motion",
-      "description": "Toolkit motion design pour agents : design, sound design, boucle de review, simulations web.",
+      "description": "Toolkit motion design pour agents : design, sound design, boucle de review, simulations web. (skill : claude-motion)",
       "version": "1.0.0",
       "author": {
         "name": "whaleyxbt"
