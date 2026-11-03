@@ -32,8 +32,8 @@
     },
     {
       "name": "fixit",
-      "version": "2.0.0",
-      "description": "Contrôle qualité adaptatif et modulaire des livrables IA : revues visuelle, technique, contenu et regards croisés, preuves, corrections autorisées, réinspection et apprentissage.",
+      "version": "2.1.0",
+      "description": "Contrôle qualité adaptatif : revue visuelle, critique UX de parcours, technique et contenu, avec preuves, corrections autorisées et réinspection.",
       "author": "BlackAngel242",
       "path": "skills/fixit"
     },

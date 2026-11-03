@@ -8,6 +8,7 @@ SKILL = ROOT / "skills" / "fixit"
 PLUGIN = ROOT / "plugins" / "drsmoke-quality" / "skills" / "fixit"
 
 MODULES = {
+    "critique-ux.md": ["première impression", "accessibilité", "vérification visuelle non effectuée", "réinspection"],
     "revue-visuelle.md": ["téléphone", "ordinateur", "vérification visuelle non effectuée", "réinspect"],
     "revue-technique.md": ["non testé", "secrets", "tests", "autorisation"],
     "revue-contenu.md": ["source", "public", "contrôle éditorial uniquement"],
@@ -26,7 +27,7 @@ class FixitModularContract(unittest.TestCase):
     def test_core_metadata_and_catalogue(self):
         self.assertTrue(self.core.startswith("---\nname: fixit\n"))
         self.assertEqual(self.meta["name"], "fixit")
-        self.assertEqual(self.meta["version"], "2.0.0")
+        self.assertEqual(self.meta["version"], "2.1.0")
         index_fixit = next(s for s in self.index["skills"] if s["name"] == "fixit")
         self.assertEqual(index_fixit["version"], self.meta["version"])
         self.assertEqual(index_fixit["description"], self.meta["description"])

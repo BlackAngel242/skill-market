@@ -29,6 +29,12 @@
 - **Des personas ne créent pas des preuves.** Un panel simulé est une contradiction de perspectives, pas plusieurs validations indépendantes. Garder toujours un gate fondé sur la version et les vérifications réelles.
 - **Une amélioration distribuée exige une version cohérente.** Mettre à jour `SKILL.md`, `skill.json`, `index.json`, le README, la documentation et les tests ensemble.
 
+## 2026-11-01 : critique UX comme module ciblé
+
+- **Éviter la redondance** : critique UX évalue le parcours, la découvrabilité et la compréhension, revue visuelle traite le rendu ; UxFix reste un correcteur CSS optionnel.
+- **Ne pas confondre les preuves** : maquette HTML, captures Android, lecture du code et recette opérateur ne valident pas les mêmes choses. Une critique sans capture indique « vérification visuelle non effectuée ».
+- **Respecter le design scellé** : prioriser les frictions démontrées sans redessiner la base graphique approuvée.
+
 > Toute IA lit ce fichier avant de travailler. Plus récent en haut.
 
 ## 2026-10-31 : dépôts sélectionnés dans une installation GitHub
