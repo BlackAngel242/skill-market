@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# Usage: herdr-ask <agent> <task | @file.md | -> [timeout_s=600]
+#        herdr-ask --unlock <agent>   (après les vérifications décrites dans SKILL.md)
+# Protocole $HERDR_BUS/<agent>/ : quest.md -> response.tmp.md -> response.md (renommé).
+# Réponse acceptée seulement si sa dernière ligne non vide est
+#   <!-- herdr:complete id=<id> status=ok|error -->
+# Codes: 0 ok, 1 timeout (verrou conservé), 2 agent occupé, 3 status=error,
+#        4 renommage impossible, 5 usage ou agent inconnu.
+# Ne pas modifier ce fichier pendant qu'une instance tourne : bash le lit au fil de l'exécution.
+set -euo pipefail
+
+bus="${HERDR_BUS:-$HOME/.herdr-bus}"
+
+if [ "${1:-}" = --unlock ]; then
+  rm -rf "$bus/${2:?agent requis}/.lock" && echo "verrou de $2 retiré"
+  exit 0
+fi
+
+[ $# -ge 2 ] || { echo "usage: herdr-ask <agent> <task|@file|-> [timeout_s]" >&2; exit 5; }
+agent=$1 task=$2 timeout=${3:-600}
+[[ $agent =~ ^[a-z][a-z0-9_-]{0,31}$ ]] || { echo "nom d'agent invalide: $agent" >&2; exit 5; }
+[[ $timeout =~ ^[1-9][0-9]*$ ]] || { echo "délai invalide: $timeout" >&2; exit 5; }
+herdr agent get "$agent" >/dev/null 2>&1 || { echo "agent inconnu: $agent (non nommé ? herdr agent rename <pane> $agent)" >&2; exit 5; }
+
+dir="$bus/$agent"; mkdir -p "$dir"
+lock="$dir/.lock"
+id=$(date +%Y%m%d-%H%M%S)-$$
+mkdir "$lock" 2>/dev/null || { echo "agent $agent occupé: $(cat "$lock/owner" 2>/dev/null)" >&2; exit 2; }
+echo "$id" > "$lock/owner"
+keep=0
+trap '[ $keep = 1 ] || rm -rf "$lock"' EXIT
+
+quest="$dir/$id.quest.md" tmp="$dir/$id.response.tmp.md" resp="$dir/$id.response.md"
+deadline=$((SECONDS + timeout))
+
+case $task in
+  -) cat > "$quest" ;;
+  @*) cp "${task#@}" "$quest" ;;
+  *) printf '%s\n' "$task" > "$quest" ;;
+esac
+
+# Chemins natifs pour l'agent : Windows (Git Bash) via cygpath, sinon inchangés.
+native() { if command -v cygpath >/dev/null 2>&1; then cygpath -w "$1"; else printf '%s' "$1"; fi; }
+last_line() { grep -vE '^[[:space:]]*$' "$1" 2>/dev/null | tail -n 1 | tr -d '\r' || true; }
+complete() { last_line "$1" | grep -qiE "^<!-- herdr:complete id=$id status=(ok|error) -->$"; }
+promote() {
+  local n=0
+  until mv "$tmp" "$resp" 2>/dev/null; do
+    n=$((n + 1)); [ $n -ge 8 ] && return 1; sleep 1
+  done
+}
+
+wq=$(native "$quest") wt=$(native "$tmp") wr=$(native "$resp")
+read_first="" learn=""
+[ -f "$bus/LECONS.md" ] && read_first="Lis d'abord $(native "$bus/LECONS.md") et cite les L-n appliqués dans ta réponse. "
+[ -f "$bus/APPRENTISSAGE.md" ] && learn=" Avant la dernière ligne, ajoute une section ## Apprentissage (protocole : $(native "$bus/APPRENTISSAGE.md")) : 5 puces au plus, « Rien à signaler » accepté."
+echo "# envoyé $(date +%H:%M:%S) à $agent (id $id)" >&2
+if ! herdr agent prompt "$agent" "${read_first}Lis la tâche dans $wq et exécute-la. Écris la réponse complète en Markdown dans $wt.$learn Termine ce fichier par la ligne exacte <!-- herdr:complete id=$id status=ok --> (ou status=error si tu n'as pas pu faire la tâche). Renomme ensuite $wt en $wr. Ne réponds ensuite que: DONE" >/dev/null; then
+  echo "avertissement: envoi non confirmé pour $agent, j'attends la sentinelle jusqu'au délai" >&2
+fi
+
+while :; do
+  if complete "$resp"; then break; fi
+  if complete "$tmp"; then
+    if promote || complete "$resp"; then break; fi
+    echo "échec du renommage de $wt (le .tmp reste lisible)" >&2
+    exit 4
+  fi
+  if [ $SECONDS -ge $deadline ]; then
+    keep=1
+    echo "timeout: pas de réponse complète pour l'id $id. Verrou conservé: vérifie l'agent puis 'herdr-ask --unlock $agent'. Réponse tardive possible dans $wt" >&2
+    exit 1
+  fi
+  sleep 2
+done
+
+status=$(last_line "$resp" | sed -n 's/.*status=\([a-zA-Z]*\).*/\1/p' | tr 'A-Z' 'a-z' || true)
+echo "# terminé $(date +%H:%M:%S) status=$status $wr"
+cat "$resp"
+[ "$status" = ok ] || exit 3

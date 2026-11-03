@@ -9,18 +9,27 @@ on:
       - 'scripts/build-chatgpt.py'
       - 'skills/fixit/**'
       - 'skills/prd-table-ronde/**'
+      - 'skills/afficheux/**'
+      - 'skills/*/skill.json'
+      - 'skills/*/SKILL.md'
+      - 'index.json'
       - 'plugins/drsmoke-quality/**'
       - '.agents/plugins/**'
       - 'tests/installer-gpt.test.mjs'
       - 'tests/test_gpt_packaging.py'
       - 'tests/test_fixit_modularity.py'
+      - 'tests/test_afficheux.py'
+      - 'tests/test_catalog_coherence.py'
       - '.github/workflows/gpt-packages.yml'
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   packaging:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,8 +45,10 @@ jobs:
       - name: Verify original skills mirrored in plugin
         run: python scripts/build-chatgpt.py --check
       - name: Build GPT ZIP files
+        if: runner.os == 'Linux'
         run: python scripts/build-chatgpt.py
       - uses: actions/upload-artifact@v4
+        if: runner.os == 'Linux'
         with:
           name: skill-market-gpt-packages
           path: dist/*.zip
