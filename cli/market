@@ -5,11 +5,12 @@
 #   market list                catalogue distant
 #   market search <mot>        recherche dans le catalogue
 #   market info <skill>        fiche d'un skill
-#   market install <skill>     installe en global (detecte les outils requis)
-#   market upgrade <skill>     met à jour un skill installé
+#   market install <skill> [--force] [-y]  installe en global
+#   market upgrade <skill> [--force]  met à jour un skill installé
 #   market update              met à jour tous les skills installés
 #   market remove <skill>      désinstalle
 #   market installed           skills installés localement
+#   market doctor              diagnostic en lecture seule
 #   market publish [chemin]    valide un skill avant soumission (PR)
 #
 # Variables d'environnement :
@@ -95,13 +96,13 @@ download_skill() {
   local spath="$1" dest="$2" tmp
   tmp=$(mktemp -d)
   if command -v git >/dev/null 2>&1; then
-    git -C "$tmp" clone -q --depth 1 --filter=blob:none --sparse "$REPO_URL" repo
-    git -C "$tmp/repo" sparse-checkout set "$spath" >/dev/null
-    cp -r "$tmp/repo/$spath" "$dest"
+    git -C "$tmp" clone -q --branch "$BRANCH" --depth 1 --filter=blob:none --sparse "$REPO_URL" repo || { rm -rf "$tmp"; return 1; }
+    git -C "$tmp/repo" sparse-checkout set "$spath" >/dev/null || { rm -rf "$tmp"; return 1; }
+    cp -r "$tmp/repo/$spath" "$dest" || { rm -rf "$tmp"; return 1; }
   else
     need curl; need tar
-    curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz" | tar -xz -C "$tmp"
-    cp -r "$tmp"/skill-market-"$BRANCH"/"$spath" "$dest"
+    curl -fsSL "https://github.com/${REPO}/archive/refs/heads/${BRANCH}.tar.gz" | tar -xz -C "$tmp" || { rm -rf "$tmp"; return 1; }
+    cp -r "$tmp"/skill-market-"$BRANCH"/"$spath" "$dest" || { rm -rf "$tmp"; return 1; }
   fi
   rm -rf "$tmp"
 }
@@ -137,7 +138,7 @@ for p in req.get("pip", []):
         out.append("pip:" + p)
 print("\n".join(out))
 EOF
-)
+) || return 1
   [ -z "$missing" ] && return 0
   echo "Outils requis manquants :"
   local kind pkg
@@ -152,7 +153,7 @@ EOF
       npm)
         echo "  - paquet npm '$pkg'"
         if ask "Installer '$pkg' en global avec npm ?"; then
-          npm install -g "$pkg"
+          npm install -g "$pkg" || return 1
         else
           echo "Abandon : '$pkg' est requis."
           return 1
@@ -161,7 +162,7 @@ EOF
       pip)
         echo "  - paquet pip '$pkg'"
         if ask "Installer '$pkg' avec pip ?"; then
-          (command -v pip >/dev/null && pip install "$pkg") || pip3 install "$pkg"
+          if command -v pip >/dev/null; then pip install "$pkg" || return 1; else pip3 install "$pkg" || return 1; fi
         else
           echo "Abandon : '$pkg' est requis."
           return 1
@@ -183,35 +184,43 @@ with open(installed, "w", encoding="utf-8") as f:
 }
 
 do_install() {
-  # do_install <nom> : télécharge, vérifie les outils, copie
-  local name="$1"
+  local name="$1" force="${2:-0}" version path iv=untracked tmp dest backup=""
   require_skill_name "$name" || return 1
   need_python
-  local version path
-  version=$(skill_field "$name" version)
-  path=$(skill_field "$name" path)
-  [ -n "$version" ] || { echo "Skill '$name' introuvable. Essaie 'market list'." >&2; return 1; }
+  version=$(skill_field "$name" version) || return 1
+  path=$(skill_field "$name" path) || return 1
+  [ -n "$version" ] || { echo "Skill '$name' introuvable." >&2; return 1; }
   valid_skill_path "$path" || { echo "Chemin de skill invalide dans le catalogue." >&2; return 1; }
-  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version de skill invalide dans le catalogue." >&2; return 1; }
-
-  if [ -f "$SKILLS_DIR/$name/installed.json" ]; then
-    local iv; iv=$("$PY" -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' "$SKILLS_DIR/$name/installed.json")
-    if [ "$iv" = "$version" ]; then echo "$name $version est déjà installé."; return 0; fi
-    echo "Mise à jour de $name : $iv -> $version"
-  else
-    echo "Installation de $name $version..."
+  [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version invalide." >&2; return 1; }
+  dest="$SKILLS_DIR/$name"
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    if [ -f "$dest/installed.json" ]; then
+      iv=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$dest/installed.json") || return 1
+      [[ "$iv" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Version installée invalide." >&2; return 1; }
+      [ "$iv" != "$version" ] || { echo "$name $version est déjà installé."; return 0; }
+    elif [ "$force" != 1 ]; then
+      echo "Destination non suivie : $dest. Utilise --force pour sauvegarder et remplacer." >&2; return 1
+    fi
   fi
-
-  local tmp; tmp=$(mktemp -d)
-  download_skill "$path" "$tmp/pkg"
-  check_requires "$tmp/pkg/skill.json" || { rm -rf "$tmp"; return 1; }
-
-  mkdir -p "$SKILLS_DIR"
-  rm -rf "$SKILLS_DIR/$name"
-  cp -r "$tmp/pkg" "$SKILLS_DIR/$name"
-  rm -rf "$tmp"
-  write_installed "$name" "$version"
-  echo "OK : $name $version installé dans $SKILLS_DIR/$name"
+  tmp=$(mktemp -d) || return 1
+  if ! download_skill "$path" "$tmp/pkg"; then echo "Téléchargement impossible." >&2; rm -rf -- "$tmp"; return 1; fi
+  if ! [ -f "$tmp/pkg/SKILL.md" ] || ! "$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); assert m.get("name")==sys.argv[2] and m.get("version")==sys.argv[3]' "$tmp/pkg/skill.json" "$name" "$version" || ! check_requires "$tmp/pkg/skill.json"; then
+    echo "Skill ou prérequis invalides : installation abandonnée." >&2; rm -rf -- "$tmp"; return 1
+  fi
+  mkdir -p "$SKILLS_DIR" "$MARKET_HOME/backup" || { rm -rf -- "$tmp"; return 1; }
+  if [ -e "$dest" ] || [ -L "$dest" ]; then
+    backup="$MARKET_HOME/backup/$name-$iv-$(date +%Y%m%d%H%M%S)-$$"
+    if [ -e "$backup" ] || ! mv -- "$dest" "$backup"; then echo "Sauvegarde impossible." >&2; rm -rf -- "$tmp"; return 1; fi
+    echo "Sauvegarde : $backup"
+  fi
+  if ! cp -r -- "$tmp/pkg" "$dest" || ! write_installed "$name" "$version"; then
+    echo "Installation échouée ; restauration de la sauvegarde." >&2
+    rm -rf -- "$dest"
+    if [ -n "$backup" ] && ! mv -- "$backup" "$dest"; then echo "Restauration impossible : sauvegarde conservée dans $backup" >&2; fi
+    rm -rf -- "$tmp"; return 1
+  fi
+  rm -rf -- "$tmp"
+  echo "OK : $name $version installé dans $dest"
 }
 
 cmd_list() {
@@ -238,20 +247,18 @@ for s in json.load(sys.stdin)["skills"]:
 
 cmd_info() {
   need_python
-  local name="$1"
-  fetch_index | "$PY" -c '
-import json, sys
-name = sys.argv[1]
-for s in json.load(sys.stdin)["skills"]:
-    if s["name"] == name:
-        print("Nom         : " + s["name"])
-        print("Version     : " + s["version"])
-        print("Auteur      : " + s.get("author", "-"))
-        print("Description : " + s.get("description", "-"))
-        break
-else:
-    sys.exit("Skill introuvable.")
-' "$name"
+  local name="$1" path manifest
+  require_skill_name "$name" || return 1
+  path=$(skill_field "$name" path) || return 1
+  [ -n "$path" ] && valid_skill_path "$path" || { echo "Skill introuvable ou chemin invalide." >&2; return 1; }
+  fetch_index | "$PY" -c 'import json,sys; s=next(x for x in json.load(sys.stdin)["skills"] if x["name"]==sys.argv[1]); print("Nom         :",s["name"]); print("Version     :",s["version"]); print("Auteur      :",s.get("author","-")); print("Description :",s.get("description","-"))' "$name" || return 1
+  manifest=$(curl -fsSL "https://raw.githubusercontent.com/${REPO}/${BRANCH}/${path}/skill.json" 2>/dev/null) || manifest=''
+  printf '%s' "$manifest" | "$PY" -c 'import json,sys
+try:
+ m=json.load(sys.stdin); r=m.get("requires"); assert isinstance(m,dict); assert r is None or (isinstance(r,dict) and all(isinstance(v,list) and all(isinstance(x,str) for x in v) for v in r.values()))
+ print("Licence     :",m.get("license") or "non renseigné")
+ print("Prérequis   :", ("; ".join(k+": "+", ".join(map(str,v)) for k,v in r.items() if isinstance(v,list) and v) or "aucun déclaré") if r is not None else "prérequis inconnus")
+except Exception: print("Licence     : non renseigné\nPrérequis   : prérequis inconnus")'
 }
 
 cmd_installed() {
@@ -402,26 +409,52 @@ PYEOF
 cmd_update() {
   need_python
   [ -d "$SKILLS_DIR" ] || { echo "Aucun skill installé."; return 0; }
-  local idx; idx=$(fetch_index)
-  local n=0
+  local idx n=0 failed=0 d name iv rv
+  idx=$(fetch_index) || return 1
   for d in "$SKILLS_DIR"/*/; do
     [ -f "$d/installed.json" ] || continue
-    local name iv rv
     name=$(basename "$d")
-    iv=$("$PY" -c 'import json, sys; print(json.load(open(sys.argv[1], encoding="utf-8"))["version"])' "$d/installed.json")
-    rv=$(printf '%s\n' "$idx" | "$PY" -c '
-import json, sys
-name = sys.argv[1]
-for s in json.load(sys.stdin)["skills"]:
-    if s["name"] == name:
-        print(s["version"])
-        break
-' "$name")
+    if ! iv=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json"); then failed=$((failed+1)); continue; fi
+    if ! rv=$(printf '%s' "$idx" | "$PY" -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name"); then failed=$((failed+1)); continue; fi
     if [ -n "$rv" ] && ver_newer "$iv" "$rv"; then
-      do_install "$name" && n=$((n+1))
+      if do_install "$name"; then n=$((n+1)); else failed=$((failed+1)); fi
     fi
   done
-  [ "$n" -eq 0 ] && echo "Tout est à jour."
+  echo "Mises à jour réussies : $n ; échecs : $failed"
+  [ "$failed" -eq 0 ]
+}
+
+cmd_doctor() {
+  local idx rc=0 d name version remote manifest bin
+  if [ -z "$PY" ]; then echo "Python 3 : absent"; return 1; fi
+  echo "Python 3 : disponible ($PY)"
+  if ! idx=$(fetch_index) || ! printf '%s' "$idx" | "$PY" -c 'import json,sys; assert isinstance(json.load(sys.stdin)["skills"],list)' 2>/dev/null; then
+    echo "Catalogue inaccessible ou invalide : diagnostic incomplet." >&2; rc=2
+  fi
+  for d in "$SKILLS_DIR"/*/; do
+    [ -d "$d" ] || continue
+    name=$(basename "$d")
+    if [ ! -f "$d/installed.json" ]; then echo "$name : non suivi"; [ "$rc" -eq 2 ] || rc=1
+    else
+      version=$("$PY" -c 'import json,sys; print(json.load(open(sys.argv[1],encoding="utf-8"))["version"])' "$d/installed.json" 2>/dev/null) || { echo "$name : métadonnées invalides"; [ "$rc" -eq 2 ] || rc=1; version=''; }
+      if [ "$rc" -ne 2 ] && [ -n "$version" ]; then
+        remote=$(printf '%s' "$idx" | "$PY" -c 'import json,sys; print(next((s["version"] for s in json.load(sys.stdin)["skills"] if s["name"]==sys.argv[1]),""))' "$name" 2>/dev/null) || { echo "Catalogue illisible : diagnostic incomplet."; rc=2; remote=''; }
+        if [ "$rc" -ne 2 ]; then
+          if [ -z "$remote" ]; then echo "$name : absent du catalogue"; rc=1
+          elif ver_newer "$version" "$remote"; then echo "$name : mise à jour disponible ($version -> $remote)"; rc=1
+          else echo "$name : à jour ($version ; catalogue $remote)"; fi
+        fi
+      fi
+    fi
+    if ! manifest=$("$PY" -c 'import json,sys; m=json.load(open(sys.argv[1],encoding="utf-8-sig")); r=m.get("requires"); assert isinstance(r,dict) and isinstance(r.get("bins",[]),list); print("\n".join(r.get("bins",[])))' "$d/skill.json" 2>/dev/null); then
+      echo "$name : prérequis inconnus"; [ "$rc" -eq 2 ] || rc=1; continue
+    fi
+    while IFS= read -r bin; do
+      [ -n "$bin" ] || continue
+      if command -v "$bin" >/dev/null 2>&1; then echo "$name : $bin présent"; else echo "$name : $bin manquant"; [ "$rc" -eq 2 ] || rc=1; fi
+    done <<< "$manifest"
+  done
+  return "$rc"
 }
 
 usage() {
@@ -432,10 +465,12 @@ case "${1:-}" in
   list)      cmd_list ;;
   search)    [ $# -ge 2 ] || { echo "Usage : market search <mot>" >&2; exit 1; }; cmd_search "$2" ;;
   info)      [ $# -ge 2 ] || { echo "Usage : market info <skill>" >&2; exit 1; }; cmd_info "$2" ;;
-  install)   [ $# -ge 2 ] || { echo "Usage : market install <skill> [-y]" >&2; exit 1; };
-             [ "${3:-}" = "-y" ] || [ "${3:-}" = "--yes" ] && ASSUME_YES=1
-             do_install "$2" ;;
-  upgrade)   [ $# -ge 2 ] || { echo "Usage : market upgrade <skill>" >&2; exit 1; }; do_install "$2" ;;
+  install|upgrade)
+             [ $# -ge 2 ] || { echo "Usage : market $1 <skill> [--force] [-y]" >&2; exit 1; }
+             name=$2; shift 2; force=0
+             for arg in "$@"; do case "$arg" in -y|--yes) ASSUME_YES=1 ;; --force|-Force) force=1 ;; *) echo "Option inconnue : $arg" >&2; exit 1 ;; esac; done
+             do_install "$name" "$force" ;;
+  doctor)    cmd_doctor ;;
   update)    cmd_update ;;
   remove)
              [ $# -ge 2 ] || { echo "Usage : market remove <skill>" >&2; exit 1; }

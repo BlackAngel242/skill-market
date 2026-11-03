@@ -7,11 +7,12 @@
   market.ps1 list                catalogue distant
   market.ps1 search <mot>        recherche dans le catalogue
   market.ps1 info <skill>        fiche d'un skill
-  market.ps1 install <skill> [-y]  installe en global (détecte les outils requis)
-  market.ps1 upgrade <skill>     met à jour un skill installé
+  market.ps1 install <skill> [--force] [-y]  installe en global
+  market.ps1 upgrade <skill> [--force]  met à jour un skill installé
   market.ps1 update              met à jour tous les skills installés
   market.ps1 remove <skill>      désinstalle
   market.ps1 installed           skills installés localement
+  market.ps1 doctor              diagnostic en lecture seule
   market.ps1 publish [chemin]    valide un skill avant soumission (PR)
 
 .VARIABLES D'ENVIRONNEMENT
@@ -26,7 +27,9 @@
 param(
   [string]$Command = "",
   [string]$Arg1 = "",
-  [string]$Arg2 = ""
+  [string]$Arg2 = "",
+  [Parameter(ValueFromRemainingArguments=$true)][string[]]$ExtraArgs,
+  [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
@@ -45,7 +48,9 @@ function Confirm-Yes($Prompt) {
 }
 
 function Get-Index {
-  (Invoke-RestMethod -Uri $IndexUrl).skills
+  $index = Invoke-RestMethod -Uri $IndexUrl
+  if ($null -eq $index.skills -or $index.skills -isnot [array]) { throw 'Catalogue invalide.' }
+  $index.skills
 }
 
 function Test-SafeSkillName($Name) {
@@ -77,9 +82,13 @@ function Get-SkillFiles($RepoPath, $Dest) {
   try {
     if (Get-Command git -ErrorAction SilentlyContinue) {
       $r = Join-Path $tmp "repo"
-      & git -C $tmp clone -q --depth 1 --filter=blob:none --sparse $RepoUrl repo 2>$null
+      $previous = $ErrorActionPreference
+      try { $ErrorActionPreference = 'Continue'; & git -C $tmp clone -q --branch $Branch --depth 1 --filter=blob:none --sparse $RepoUrl repo 2>$null }
+      finally { $ErrorActionPreference = $previous }
       if ($LASTEXITCODE -ne 0) { throw "git clone a échoué." }
-      & git -C $r sparse-checkout set $RepoPath 2>$null | Out-Null
+      try { $ErrorActionPreference = 'Continue'; & git -C $r sparse-checkout set $RepoPath 2>$null | Out-Null }
+      finally { $ErrorActionPreference = $previous }
+      if ($LASTEXITCODE -ne 0) { throw "git sparse-checkout a échoué." }
       Copy-Item (Join-Path $r $RepoPath) -Destination $Dest -Recurse -Force
     } else {
       $zip = Join-Path $tmp "repo.zip"
@@ -106,10 +115,12 @@ function Test-Requires($ManifestPath) {
     }
   }
   foreach ($p in @($req.npm) | Where-Object { $_ }) {
-    & npm ls -g $p 2>$null | Out-Null
+    $previous = $ErrorActionPreference
+    try { $ErrorActionPreference = 'Continue'; & npm ls -g $p 2>$null | Out-Null }
+    finally { $ErrorActionPreference = $previous }
     if ($LASTEXITCODE -ne 0) {
       Write-Host "Paquet npm manquant : '$p'"
-      if (Confirm-Yes "Installer '$p' en global avec npm ?") { & npm install -g $p }
+      if (Confirm-Yes "Installer '$p' en global avec npm ?") { & npm install -g $p | Out-Host; if ($LASTEXITCODE -ne 0) { return $false } }
       else { Write-Host "Abandon : '$p' est requis."; return $false }
     }
   }
@@ -117,10 +128,12 @@ function Test-Requires($ManifestPath) {
     $pip = Get-Command pip -ErrorAction SilentlyContinue
     if (-not $pip) { $pip = Get-Command pip3 -ErrorAction SilentlyContinue }
     if (-not $pip) { Write-Host "pip introuvable et requis. Abandon."; return $false }
-    & $pip show $p 2>$null | Out-Null
+    $previous = $ErrorActionPreference
+    try { $ErrorActionPreference = 'Continue'; & $pip show $p 2>$null | Out-Null }
+    finally { $ErrorActionPreference = $previous }
     if ($LASTEXITCODE -ne 0) {
       Write-Host "Paquet pip manquant : '$p'"
-      if (Confirm-Yes "Installer '$p' avec pip ?") { & $pip install $p }
+      if (Confirm-Yes "Installer '$p' avec pip ?") { & $pip install $p | Out-Host; if ($LASTEXITCODE -ne 0) { return $false } }
       else { Write-Host "Abandon : '$p' est requis."; return $false }
     }
   }
@@ -132,19 +145,23 @@ function Write-Installed($Name, $Version) {
   $meta | ConvertTo-Json | Set-Content (Join-Path $SkillsDir "$Name\installed.json")
 }
 
-function Install-Skill($Name) {
+function Install-Skill($Name, $ReplaceUntracked = $false) {
   if (-not (Test-SafeSkillName $Name)) { throw "Nom de skill invalide." }
   $s = Get-Skill $Name
   if (-not $s) { Write-Host "Skill '$Name' introuvable. Essaie 'market.ps1 list'."; exit 1 }
   $version = $s.version; $path = $s.path
   if ($version -notmatch '\A[0-9]+\.[0-9]+\.[0-9]+\z') { throw "Version de skill invalide dans le catalogue." }
 
+  $dest = Join-Path $SkillsDir $Name
   $metaFile = Join-Path $SkillsDir "$Name\installed.json"
+  $iv = 'untracked'
   if (Test-Path $metaFile) {
     $iv = (Get-Content $metaFile -Raw | ConvertFrom-Json).version
+    if ($iv -notmatch '\A[0-9]+\.[0-9]+\.[0-9]+\z') { throw 'Version installée invalide.' }
     if ($iv -eq $version) { Write-Host "$Name $version est déjà installé."; return }
     Write-Host "Mise à jour de ${Name} : $iv -> $version"
   } else {
+    if ((Test-Path -LiteralPath $dest) -and -not $ReplaceUntracked) { throw "Destination non suivie : $dest. Utilise --force pour sauvegarder et remplacer." }
     Write-Host "Installation de $Name $version..."
   }
 
@@ -152,12 +169,26 @@ function Install-Skill($Name) {
   $pkg = Join-Path $tmp "pkg"
   try {
     Get-SkillFiles $path $pkg
-    if (-not (Test-Requires (Join-Path $pkg "skill.json"))) { return }
+    $manifest = Get-Content -LiteralPath (Join-Path $pkg 'skill.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+    if (-not (Test-Path -LiteralPath (Join-Path $pkg 'SKILL.md')) -or $manifest.name -ne $Name -or $manifest.version -ne $version) { throw 'Skill téléchargé invalide.' }
+    if (-not (Test-Requires (Join-Path $pkg "skill.json"))) { throw 'Prérequis manquant ou refusé.' }
     if (-not (Test-Path $SkillsDir)) { New-Item -ItemType Directory -Path $SkillsDir | Out-Null }
-    $dest = Join-Path $SkillsDir $Name
-    if (Test-Path $dest) { Remove-Item $dest -Recurse -Force }
-    Copy-Item $pkg -Destination $dest -Recurse -Force
-    Write-Installed $Name $version
+    $backup = $null
+    if (Test-Path -LiteralPath $dest) {
+      $backupDir = Join-Path $MarketHome 'backup'
+      New-Item -ItemType Directory -Path $backupDir -Force | Out-Null
+      $backup = Join-Path $backupDir ("$Name-$iv-" + (Get-Date -Format 'yyyyMMddHHmmss') + '-' + [guid]::NewGuid().ToString('N'))
+      Move-Item -LiteralPath $dest -Destination $backup
+      Write-Host "Sauvegarde : $backup"
+    }
+    try {
+      Copy-Item -LiteralPath $pkg -Destination $dest -Recurse
+      Write-Installed $Name $version
+    } catch {
+      if (Test-Path -LiteralPath $dest) { Remove-Item -LiteralPath $dest -Recurse -Force }
+      if ($backup) { try { Move-Item -LiteralPath $backup -Destination $dest } catch { Write-Host "Restauration impossible : sauvegarde conservée dans $backup" } }
+      throw
+    }
     Write-Host "OK : $Name $version installé dans $dest"
   } finally {
     Remove-Item -Path $tmp -Recurse -Force -ErrorAction SilentlyContinue
@@ -171,13 +202,46 @@ Usage : market.ps1 <commande> [arguments]
   list                catalogue distant
   search <mot>        recherche dans le catalogue
   info <skill>        fiche d'un skill
-  install <skill> [-y]  installe en global (détecte les outils requis)
-  upgrade <skill>     met à jour un skill installé
+  install <skill> [--force] [-y]  installe en global
+  upgrade <skill> [--force]  met à jour un skill installé
   update              met à jour tous les skills installés
   remove <skill>      désinstalle
   installed           skills installés localement
+  doctor              diagnostic en lecture seule
   publish [chemin]    valide un skill avant soumission (PR)
 "@
+}
+
+function Show-Doctor {
+  $code = 0; $idx = $null
+  try { $idx = @(Get-Index) } catch { Write-Host 'Catalogue inaccessible : diagnostic incomplet.'; $code = 2 }
+  if (Test-Path -LiteralPath $SkillsDir) {
+    foreach ($d in @(Get-ChildItem -LiteralPath $SkillsDir -Directory)) {
+      $metaFile = Join-Path $d.FullName 'installed.json'
+      if (-not (Test-Path -LiteralPath $metaFile)) { Write-Host "$($d.Name) : non suivi"; if ($code -ne 2) { $code = 1 } }
+      else {
+        try {
+          $m = Get-Content -LiteralPath $metaFile -Raw -Encoding UTF8 | ConvertFrom-Json
+          if (-not $m.version) { throw 'version absente' }
+          if ($code -ne 2) {
+            $r = $idx | Where-Object { $_.name -eq $d.Name } | Select-Object -First 1
+            if (-not $r) { Write-Host "$($d.Name) : absent du catalogue"; $code = 1 }
+            elseif (Test-VersionNewer $m.version $r.version) { Write-Host "$($d.Name) : mise à jour disponible ($($m.version) -> $($r.version))"; $code = 1 }
+            else { Write-Host "$($d.Name) : à jour ($($m.version) ; catalogue $($r.version))" }
+          }
+        } catch { Write-Host "$($d.Name) : métadonnées invalides"; if ($code -ne 2) { $code = 1 } }
+      }
+      try {
+        $manifest = Get-Content -LiteralPath (Join-Path $d.FullName 'skill.json') -Raw -Encoding UTF8 | ConvertFrom-Json
+        if (-not $manifest.requires) { throw 'prérequis inconnus' }
+        foreach ($bin in @($manifest.requires.bins) | Where-Object { $_ }) {
+          if (Get-Command $bin -ErrorAction SilentlyContinue) { Write-Host "$($d.Name) : $bin présent" }
+          else { Write-Host "$($d.Name) : $bin manquant"; if ($code -ne 2) { $code = 1 } }
+        }
+      } catch { Write-Host "$($d.Name) : prérequis inconnus"; if ($code -ne 2) { $code = 1 } }
+    }
+  }
+  return $code
 }
 
 function Publish-Skill($Src) {
@@ -308,31 +372,48 @@ switch ($Command) {
     "Version     : $($s.version)"
     "Auteur      : $($s.author)"
     "Description : $($s.description)"
+    try {
+      if (-not (Test-SafeSkillPath $s.path)) { throw 'Chemin invalide.' }
+      $m = Invoke-RestMethod -Uri "https://raw.githubusercontent.com/$Repo/$Branch/$($s.path)/skill.json"
+      if (-not $m) { throw 'Manifeste illisible.' }
+      $licence = if ($m.license) { $m.license } else { 'non renseigné' }
+      $requires = if ($m.requires) { $m.requires | ConvertTo-Json -Compress -Depth 5 } else { 'prérequis inconnus' }
+      "Licence     : $licence"; "Prérequis   : $requires"
+    } catch { 'Licence     : non renseigné'; 'Prérequis   : prérequis inconnus' }
   }
   "install" {
     if (-not $Arg1) { Write-Host "Usage : market.ps1 install <skill> [-y]"; exit 1 }
-    if ($Arg2 -eq "-y" -or $Arg2 -eq "--yes") { $env:ASSUME_YES = "1" }
-    Install-Skill $Arg1
+    $replace = $Force.IsPresent
+    foreach ($arg in @($Arg2) + @($ExtraArgs)) {
+      if ($arg -in '-y','--yes') { $env:ASSUME_YES = '1' }
+      elseif ($arg -in '--force','-Force') { $replace = $true }
+      elseif ($arg) { throw "Option inconnue : $arg" }
+    }
+    Install-Skill $Arg1 $replace
   }
   "upgrade" {
     if (-not $Arg1) { Write-Host "Usage : market.ps1 upgrade <skill>"; exit 1 }
-    Install-Skill $Arg1
+    $replace = $Force.IsPresent -or $Arg2 -in '--force','-Force'
+    Install-Skill $Arg1 $replace
   }
+  "doctor" { exit (Show-Doctor) }
   "update" {
     if (-not (Test-Path $SkillsDir)) { Write-Host "Aucun skill installé."; break }
     $idx = Get-Index
-    $n = 0
+    $n = 0; $failed = 0
     Get-ChildItem -Path $SkillsDir -Directory | ForEach-Object {
       $metaFile = Join-Path $_.FullName "installed.json"
       if (Test-Path $metaFile) {
-        $meta = Get-Content $metaFile -Raw | ConvertFrom-Json
-        $remote = $idx | Where-Object { $_.name -eq $meta.name } | Select-Object -First 1
-        if ($remote -and (Test-VersionNewer $meta.version $remote.version)) {
-          Install-Skill $meta.name; $n++
-        }
+        try {
+          $meta = Get-Content $metaFile -Raw | ConvertFrom-Json
+          if ($meta.name -ne $_.Name) { throw 'Nom installé incohérent.' }
+          $remote = $idx | Where-Object { $_.name -eq $meta.name } | Select-Object -First 1
+          if ($remote -and (Test-VersionNewer $meta.version $remote.version)) { Install-Skill $meta.name; $n++ }
+        } catch { Write-Host "Échec $($_.Exception.Message)"; $failed++ }
       }
     }
-    if ($n -eq 0) { Write-Host "Tout est à jour." }
+    Write-Host "Mises à jour réussies : $n ; échecs : $failed"
+    if ($failed) { exit 1 }
   }
   "remove" {
     if (-not $Arg1) { Write-Host "Usage : market.ps1 remove <skill>"; exit 1 }
