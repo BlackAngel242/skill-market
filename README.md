@@ -40,11 +40,14 @@ Pour une installation locale déjà présente, **ne pas écraser silencieusement
 ## Installer le CLI
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/BlackAngel242/skill-market/main/cli/market -o ~/.local/bin/market
+mkdir -p ~/.local/bin
+curl -fsSL https://raw.githubusercontent.com/BlackAngel242/skill-market/main/cli/market -o ~/.local/bin/market
 chmod +x ~/.local/bin/market
 ```
 
-Prérequis : `curl`, `python3`, `git` (recommandé). `~/.local/bin` doit être dans ton `PATH`.
+Prérequis : `curl`, Python 3 (`python3` ou `python`), `git` (recommandé). `~/.local/bin` doit être dans ton `PATH`.
+
+Sous Git Bash (Windows), `python3` mène souvent à l'alias du Microsoft Store, qui ne lance rien : le CLI se rabat alors sur `python`.
 
 ## Installer le CLI (Windows)
 
@@ -55,7 +58,7 @@ Invoke-WebRequest https://raw.githubusercontent.com/BlackAngel242/skill-market/m
 powershell -ExecutionPolicy Bypass -File .\market.ps1 install uxfix
 ```
 
-Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `publish`.
+Fonctionne avec Windows PowerShell 5.1 (`powershell`, présent sur tout Windows 10/11) et PowerShell 7 (`pwsh`) ; la CI teste les deux. Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `publish`.
 
 ## Alternative : installer via `npx skills add`
 
@@ -68,6 +71,17 @@ npx skills add BlackAngel242/skill-market --all -g -y            # tout installe
 ```
 
 Note : via `npx skills add`, seuls les fichiers du skill sont copiés. La détection et l'installation automatique des outils requis (`skill.json` → `requires`) reste l'exclusivité de `market install`.
+
+## Quel parcours d'installation choisir
+
+| Parcours | Destination | Pour quoi |
+|---|---|---|
+| `market install <nom>` | `~/.skill-market/skills/<nom>` (`MARKET_HOME`) | catalogue complet, détection des outils requis, mises à jour par version |
+| `npx skills add ...` | dossier de skills du client choisi | copie simple, sans contrôle des prérequis |
+| `node scripts/install-skills.mjs --tool <client>` | `.codex/skills`, `.claude/skills` ou `.cursor/skills` | Fixit et PRD Table Ronde seulement, sans réseau, `--replace` avec sauvegarde |
+| `python scripts/build-chatgpt.py` | `dist/*.zip` | import manuel dans un compte ChatGPT compatible |
+
+Un skill copié sur le disque n'est pas forcément découvert par ton client : vérifie qu'il apparaît dans la liste des skills du client.
 
 ## Utilisation
 
@@ -113,7 +127,7 @@ Chaque skill déclare ses prérequis dans `skill.json` :
 
 AfficheUX est un **skill maître** qui orchestre un essaim de rôles : brief, piste initiale, recherche Pinterest traçable, analyse UX, propositions, validation, création, contrôle Fixit et capitalisation des retours. Il fonctionne en mode multi-agents quand le client le permet, ou séquentiellement sans prétendre déployer des sous-agents. Pinterest et les métriques d'engagement ne sont utilisés que si accessibles et vérifiables.
 
-- Installer : `market install afficheux` (après fusion dans le catalogue), ou `npx skills add BlackAngel242/skill-market --skill afficheux -g -y`.
+- Installer : `market install afficheux`, ou `npx skills add BlackAngel242/skill-market --skill afficheux -g -y`.
 - Voir le protocole de validation : [AfficheUX et critères d'adoption](docs/AFFICHEUX-VALIDATION.md).
 - L'archive `AfficheUX-ChatGPT.zip` peut être créée par `python scripts/build-chatgpt.py` pour un import manuel dans un compte compatible.
 - La mémoire explicite d'apprentissage reste dans un dossier de projet autorisé, jamais prétendument synchronisée en silence.
@@ -146,6 +160,24 @@ AfficheUX est un **skill maître** qui orchestre un essaim de rôles : brief, pi
 | `animate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Animation procédurale en code (par cth9191, MIT) : storyboard d'abord, styles prédéfinis, synchro musicale. |
 | `remotion-motion-graphics` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Motion graphics avec Remotion (par haidrrrry, MIT) : sous-titres, B-roll et son depuis un seul prompt. |
 | `explainroo` | ![0.4.1](https://img.shields.io/badge/v0.4.1-blue) | Vidéos explicatives et démos produit narrées (par vincentsch, MIT) : voix locale Kokoro dont le français, timing Whisper, dessins canvas calés sur la narration, MP4 + sous-titres. Aucune clé API. |
+
+### Skills vidéo et motion : lequel choisir
+
+| Besoin | Skill |
+|---|---|
+| Vidéo de lancement produit : script, accroches, plan caméra | `motion-launch` ; version cinématique en code : `product-launch-motion` |
+| Vidéo explicative : choisir un style et storyboarder avant d'animer | `explainer-storyboard` |
+| Vidéo explicative ou démo narrée, voix locale, MP4 + sous-titres | `explainroo` |
+| Animation procédurale en code (canvas, musique synthétisée) | `animate` |
+| Projet Remotion (React) | `remotion-motion-graphics` |
+| Titres, lower thirds, infographies animées | `motion-graphics` |
+| Animer une interface web (boutons, cartes, transitions) | `motion-web` |
+| Principes d'animation (Disney) appliqués à l'UI | `motion-principles` ; version LottieFiles : `motion-design` |
+| Musique, bruitages, mixage | `motion-sound` |
+| Montage de rushs, coupes, SRT | `rush-cut` |
+| Illustrations calées sur la narration | `motion-illustrate` |
+
+Les bundles `motion-graphics-skills` (15 skills) et `claude-motion` (4 skills) s'installent en un seul dossier : leurs sous-skills sont dans `skills/<bundle>/<sous-skill>/SKILL.md`. `market install motion-design` installe le skill LottieFiles, pas le sous-skill `claude-motion/motion-design`.
 
 ## Publier un skill
 
