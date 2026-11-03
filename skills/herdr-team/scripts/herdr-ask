@@ -51,10 +51,11 @@ promote() {
 }
 
 wq=$(native "$quest") wt=$(native "$tmp") wr=$(native "$resp")
-learn=""
-[ -f "$bus/APPRENTISSAGE.md" ] && learn=" Avant la dernière ligne, ajoute une section ## Apprentissage (protocole : $(native "$bus/APPRENTISSAGE.md"))."
+read_first="" learn=""
+[ -f "$bus/LECONS.md" ] && read_first="Lis d'abord $(native "$bus/LECONS.md") et cite les L-n appliqués dans ta réponse. "
+[ -f "$bus/APPRENTISSAGE.md" ] && learn=" Avant la dernière ligne, ajoute une section ## Apprentissage (protocole : $(native "$bus/APPRENTISSAGE.md")) : 5 puces au plus, « Rien à signaler » accepté."
 echo "# envoyé $(date +%H:%M:%S) à $agent (id $id)" >&2
-if ! herdr agent prompt "$agent" "Lis la tâche dans $wq et exécute-la. Écris la réponse complète en Markdown dans $wt.$learn Termine ce fichier par la ligne exacte <!-- herdr:complete id=$id status=ok --> (ou status=error si tu n'as pas pu faire la tâche). Renomme ensuite $wt en $wr. Ne réponds ensuite que: DONE" >/dev/null; then
+if ! herdr agent prompt "$agent" "${read_first}Lis la tâche dans $wq et exécute-la. Écris la réponse complète en Markdown dans $wt.$learn Termine ce fichier par la ligne exacte <!-- herdr:complete id=$id status=ok --> (ou status=error si tu n'as pas pu faire la tâche). Renomme ensuite $wt en $wr. Ne réponds ensuite que: DONE" >/dev/null; then
   echo "avertissement: envoi non confirmé pour $agent, j'attends la sentinelle jusqu'au délai" >&2
 fi
 

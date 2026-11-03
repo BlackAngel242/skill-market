@@ -1,57 +1,64 @@
-# Apprentissage en essaim — protocole commun
+# Apprentissage en essaim — protocole commun (v2)
 
-Valable pour toutes les IA pilotées par herdr, dans tous les panes et tous les projets. But : que l'expérience de chacune serve à toutes, et que l'équipe s'améliore d'un projet à l'autre sans répéter les mêmes erreurs.
+Valable pour toutes les IA pilotées par herdr, dans tous les panes et tous les projets. But : que l'expérience de chacune serve à toutes, et que l'équipe s'améliore d'un projet à l'autre sans répéter les mêmes erreurs — sans transformer chaque réponse en pavé.
 
-Mémoire commune : `$HERDR_BUS/LECONS.md` (par défaut `~/.herdr-bus/LECONS.md`). Elle se lit en entier avant chaque mission. Pour l'activer : copier ce fichier en `$HERDR_BUS/APPRENTISSAGE.md` ; `herdr-ask` ajoute alors la consigne à chaque tâche.
+Mémoire commune : `$HERDR_BUS/LECONS.md` (par défaut `~/.herdr-bus/LECONS.md`), lue en entier avant chaque mission. Pour activer le protocole : copier ce fichier en `$HERDR_BUS/APPRENTISSAGE.md` ; `herdr-ask` ajoute alors la consigne à chaque tâche.
 
 ## 1. Chaque réponse se termine par `## Apprentissage`
 
-Juste avant la sentinelle `<!-- herdr:complete ... -->`. Quatre rubriques, chacune peut valoir « rien » :
-
-- **Erreurs** : ce que j'ai mal fait ou failli mal faire, et comment je m'en suis rendu compte.
-- **Astuces** : une technique, une commande ou un piège d'outil qui fait gagner du temps ou évite un faux résultat.
-- **Méthode** : la démarche qui a permis d'arriver à la solution (étapes, vérification qui a tranché).
-- **Leçons** : numéros de `LECONS.md` appliqués ; leçon contredite ou à nuancer, avec la preuve.
-
-Un apprentissage sans preuve (sortie, ligne de code, fichier) se marque « supposé ».
+Juste avant la sentinelle. **5 puces au plus**, chacune préfixée par un tag : `erreur` · `astuce` · `méthode` · `leçon L-n` · `contesté L-n`.
+Preuve obligatoire (commande + 2-3 lignes de sortie, ou fichier:ligne), sinon tag `supposé`.
+Rien à signaler → une seule ligne « Rien à signaler ». Jamais de puce écrite pour remplir : une leçon fabriquée coûte plus cher que le silence.
 
 ## 2. Qui corrige explique
 
-Quand une IA corrige le travail d'une autre (ou le sien après coup), elle écrit :
+Seulement si une autre IA pourrait refaire l'erreur (sinon, une ligne suffit) :
 
 ```
 ### Correction
-- Quoi : ce qui était faux (fichier:ligne, sortie observée).
-- Pourquoi c'était faux : la cause, pas le symptôme.
-- Comment je l'ai corrigé : le changement et la vérification qui prouve qu'il marche.
-- Pourquoi ainsi : l'alternative écartée et la raison.
-- Pour ne pas la refaire : la règle à suivre, formulée pour toutes les IA.
+- Quoi / cause : fichier:ligne + sortie observée ; la cause derrière le symptôme.
+- Vérification : la commande ou l'exécution qui prouve que c'est corrigé.
+- Alternative écartée : pourquoi pas l'autre choix (une phrase).
+- Règle : une phrase pour toutes les IA, candidate à LECONS.md.
 ```
 
-Exemple : un banc de test PowerShell affichait `code=0` pour une commande refusée. Cause : `Start-Process -PassThru` sans lecture de `$p.Handle` rend `ExitCode` nul, converti en 0. Correction : lire `$p.Handle` (ou `$LASTEXITCODE`), code nul = KO. Règle : un résultat qui contredit une autre étape du même banc se vérifie avant d'être rapporté.
+Si l'erreur est déjà dans `LECONS.md` : écrire « L-n, vu 2 » au lieu du bloc.
 
 ## 3. Une seule plume pour la mémoire
 
-Les IA **proposent** ; l'orchestrateur **écrit** dans `LECONS.md` (un fichier = un propriétaire, pas d'écriture concurrente). À la fin de chaque mission, il :
-1. relit les sections `Apprentissage` et `Correction` reçues ;
-2. vérifie la preuve d'au moins un point par réponse ;
-3. ajoute ou met à jour les entrées, avec leur type et leur état ;
-4. cite dans le brief suivant, à toutes les IA, les leçons nouvelles et la correction qui les a fait naître.
+Les IA **proposent** ; l'orchestrateur **écrit** dans `LECONS.md` (un fichier = un propriétaire). À la fin de chaque mission :
+1. relire les sections `Apprentissage` et `Correction` reçues ;
+2. vérifier la preuve d'un point par réponse, **5 minutes au plus** ; au-delà, noter « preuve non revue » ;
+3. avant toute nouvelle entrée, se demander si une entrée couvre déjà le cas : si oui, incrémenter « vu N » ;
+4. dans le brief suivant, citer **seulement les numéros utiles au travail demandé** (`L-n (projet)`), pas la liste des nouveautés.
 
-## 4. Types et états
+## 4. Types, états et portée
 
-Types : **ERREUR** (piège rencontré), **ASTUCE** (technique utile), **MÉTHODE** (démarche qui a abouti), **RÔLE** (force ou limite observée d'une IA).
+Types : **ERREUR**, **ASTUCE**, **MÉTHODE**, **RÔLE** (force ou limite observée d'une IA).
 
-États, pour une évolution consciente plutôt qu'automatique :
-- **À VALIDER** : un seul cas.
-- **CONFIRMÉ** : vérifié sur preuve, ou revu dans un second cas indépendant (autre projet ou autre IA).
-- **REMPLACÉ par L-n** : une meilleure règle existe ; ne pas supprimer, pour garder l'historique.
-- **CONTESTÉ** : une IA apporte une preuve contraire ; l'orchestrateur tranche ou demande à l'utilisateur.
+États, pour une évolution consciente :
+- **À VALIDER** : un seul cas ; jamais appliquée comme règle sans le dire.
+- **CONFIRMÉ** : second cas indépendant (autre projet ou autre IA), ou preuve vérifiée. L'accord des pairs ne suffit pas.
+- **REMPLACÉ par L-n** : garder l'entrée pour l'historique.
+- **CONTESTÉ** : toute IA peut l'ouvrir dans sa section Apprentissage (`contesté L-n` + preuve) ; l'orchestrateur tranche ou demande à l'utilisateur. Quand tout le monde est d'accord, l'écrire : le silence n'est pas un vote.
 
-Chaque entrée garde : date, projet, source, portée (une IA, toutes, orchestrateur) et « vu N fois » quand elle se répète. Une leçon ne devient pas une règle universelle à partir d'un seul cas.
+En-tête : `L-<n> · date · projet · source · portée · type · état`. Le projet est obligatoire ; la portée par défaut est **ce projet** ; l'élargir à « toutes » est un changement explicite.
 
-## 5. Ce que l'essaim ne fait pas
+Plafond : **40 entrées actives**. Au-delà, les CONFIRMÉ de plus de deux mois partent dans `LECONS-ARCHIVE.md` (une ligne d'index chacune dans `LECONS.md`).
 
-- Pas de leçon inventée pour remplir la rubrique : « rien » est une réponse valable.
+## 5. Garde-fous
+
 - Pas de secret, de donnée personnelle (numéro, adresse, identifiant) ni de contenu privé de projet dans la mémoire commune.
-- Pas de changement de comportement imposé par une leçon À VALIDER sans le dire.
+- Le protocole lui-même évolue par proposition dans une section Apprentissage, puis accord de l'utilisateur. On modifie `herdr-ask` seulement quand aucune instance ne tourne (nouveau fichier puis `mv`).
+
+## 6. Bilan pour l'utilisateur
+
+Après chaque phase de projet, l'orchestrateur produit **10 lignes au plus**, générées par commande :
+
+```bash
+grep '^## L-' LECONS.md | grep -oE 'CONFIRMÉ|À VALIDER|CONTESTÉ|REMPLACÉ' | sort | uniq -c   # états
+grep '^## L-' LECONS.md | grep -c 'vu [2-9]'                                                  # récidives
+grep -l 'L-<n>' "$HERDR_BUS"/*/*.response.md | wc -l                                          # leçon citée
+```
+
+Puis 3 phrases : nouvelles entrées, passages d'état, récidives ou contestations. Une citation prouve la lecture, pas l'application ; l'application se voit dans un bloc Correction ou une vérification citée à côté du numéro.

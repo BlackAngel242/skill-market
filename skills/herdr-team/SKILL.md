@@ -48,10 +48,11 @@ Un fichier = un propriétaire : jamais deux agents qui écrivent le même fichie
 ## Apprentissage en essaim
 
 Protocole complet : `references/apprentissage.md`. En bref :
-- chaque réponse finit par `## Apprentissage` (erreurs, astuces, méthode, leçons appliquées ou contredites) ; `herdr-ask` l'exige dès que `~/.herdr-bus/APPRENTISSAGE.md` existe ;
-- qui corrige le travail d'un autre écrit un bloc `### Correction` : quoi, pourquoi c'était faux, comment c'est corrigé, pourquoi ainsi, comment ne pas la refaire ;
-- l'orchestrateur est la seule plume de `LECONS.md` : il vérifie la preuve, classe (ERREUR, ASTUCE, MÉTHODE, RÔLE ; À VALIDER, CONFIRMÉ, REMPLACÉ, CONTESTÉ) et transmet les nouvelles leçons à toutes les IA dans le brief suivant ;
-- une leçon d'un seul cas reste À VALIDER ; un second cas indépendant (autre projet, autre IA) la confirme.
+- chaque réponse finit par `## Apprentissage` : 5 puces au plus, taguées (`erreur`, `astuce`, `méthode`, `leçon L-n`, `contesté L-n`), avec preuve ; « Rien à signaler » accepté. `herdr-ask` l'exige dès que `~/.herdr-bus/APPRENTISSAGE.md` existe, et fait lire `LECONS.md` d'abord ;
+- qui corrige ce qu'une autre IA pourrait refaire écrit un bloc `### Correction` (cause, vérification, alternative écartée, règle) ; si l'erreur est déjà connue : « L-n, vu 2 » ;
+- l'orchestrateur est la seule plume de `LECONS.md` : il vérifie une preuve par réponse (5 minutes au plus), incrémente « vu N » plutôt que de dupliquer, classe (ERREUR, ASTUCE, MÉTHODE, RÔLE ; À VALIDER, CONFIRMÉ, REMPLACÉ, CONTESTÉ) et cite dans le brief suivant les seuls numéros utiles ;
+- une leçon d'un seul cas reste À VALIDER ; un second cas indépendant (autre projet, autre IA) la confirme ; toute IA peut contester une entrée avec preuve ;
+- 40 entrées actives au plus (archive au-delà) ; après chaque phase de projet, un bilan de 10 lignes généré par commandes montre à l'utilisateur comment l'équipe progresse.
 
 ## Codes de sortie de herdr-ask
 
