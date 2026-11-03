@@ -37,5 +37,6 @@ if run installed --tool codex | grep -q legacy; then echo 'KO: ancien répertoir
 if run installed --tool nonsense; then echo 'KO: client inconnu' >&2; exit 1; fi
 if run installed --tool claude --bogus; then echo 'KO: option inconnue' >&2; exit 1; fi
 if MARKET_HOME="$HOME/.claude/skills" run install prd-table-ronde --tool claude --force; then echo 'KO: sauvegarde dans le dossier client' >&2; exit 1; fi
+if MARKET_HOME="$HOME/.claude/skills" run install prd-table-ronde --force; then echo 'KO: sauvegarde sans client dans le dossier client' >&2; exit 1; fi
 run remove prd-table-ronde --tool claude
 printf 'OK: client claude, sauvegarde, refus, options et suppression.\n'

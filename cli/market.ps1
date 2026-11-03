@@ -53,10 +53,10 @@ for ($i = 0; $i -lt $rawArgs.Count; $i++) {
 $Arg1 = if ($remaining.Count -gt 0) { $remaining[0] } else { '' }
 $Arg2 = if ($remaining.Count -gt 1) { $remaining[1] } else { '' }
 $ExtraArgs = if ($remaining.Count -gt 2) { @($remaining.ToArray()[2..($remaining.Count-1)]) } else { @() }
+$clientHome = if ($env:OS -eq 'Windows_NT' -and $env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { $HOME }
 $SkillsDir = switch ($client) {
   { -not $_ } { Join-Path $MarketHome 'skills'; break }
   { $_ -cin @('claude','codex','cursor','agents') } {
-    $clientHome = if ($env:OS -eq 'Windows_NT' -and $env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { $HOME }
     $folder = if ($client -eq 'codex') { '.agents' } else { ".$client" }
     Join-Path (Join-Path $clientHome $folder) 'skills'; break
   }
@@ -179,13 +179,11 @@ function Write-Installed($Name, $Version) {
 
 function Install-Skill($Name, $ReplaceUntracked = $false) {
   if (-not (Test-SafeSkillName $Name)) { throw "Nom de skill invalide." }
-  if ($client) {
-    $backupPath = [IO.Path]::GetFullPath((Join-Path $MarketHome 'backup')).TrimEnd([char[]]'\/')
-    $comparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
-    foreach ($candidate in @('claude','codex','cursor','agents')) {
-      $root = [IO.Path]::GetFullPath((Join-Path (Join-Path $clientHome ".$candidate") 'skills')).TrimEnd([char[]]'\/')
-      if ($backupPath.Equals($root, $comparison) -or $backupPath.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw "Sauvegarde interdite dans un dossier de skills client : $backupPath" }
-    }
+  $backupPath = [IO.Path]::GetFullPath((Join-Path $MarketHome 'backup')).TrimEnd([char[]]'\/')
+  $comparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+  foreach ($candidate in @('claude','codex','cursor','agents')) {
+    $root = [IO.Path]::GetFullPath((Join-Path (Join-Path $clientHome ".$candidate") 'skills')).TrimEnd([char[]]'\/')
+    if ($backupPath.Equals($root, $comparison) -or $backupPath.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw "Sauvegarde interdite dans un dossier de skills client : $backupPath" }
   }
   $s = Get-Skill $Name
   if (-not $s) { Write-Host "Skill '$Name' introuvable. Essaie 'market.ps1 list'."; exit 1 }

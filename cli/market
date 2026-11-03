@@ -32,7 +32,7 @@ while [ $# -gt 0 ]; do
     TOOL="$2"; shift 2
   else args+=("$1"); shift; fi
 done
-set -- "$command" "${args[@]}"
+set -- "$command" ${args[@]+"${args[@]}"}
 case "$TOOL" in
   '') SKILLS_DIR="$MARKET_HOME/skills" ;;
   codex|agents) SKILLS_DIR="$HOME/.agents/skills" ;;
@@ -51,7 +51,7 @@ for cand in python3 python; do
 done
 if [ -z "$PY" ] && py -3 -c 'import sys; sys.exit(sys.version_info < (3,))' >/dev/null 2>&1; then PY=py; PY_ARGS=(-3); fi
 
-py_run() { "$PY" "${PY_ARGS[@]}" "$@"; }
+py_run() { "$PY" ${PY_ARGS[@]+"${PY_ARGS[@]}"} "$@"; }
 
 need_python() {
   [ -n "$PY" ] || { echo "Outil manquant : Python 3 (python3, python ou py -3). Installe-le puis relance." >&2; exit 1; }
@@ -206,7 +206,7 @@ do_install() {
   local name="$1" force="${2:-0}" version path iv=untracked tmp dest backup=""
   require_skill_name "$name" || return 1
   need_python
-  if [ -n "$TOOL" ] && ! py_run -c 'import os,sys
+  if ! py_run -c 'import os,sys
 home,backup=map(os.path.realpath,sys.argv[1:])
 for client in ("claude","codex","cursor","agents"):
  root=os.path.normcase(os.path.join(home,"."+client,"skills")); dest=os.path.normcase(backup)

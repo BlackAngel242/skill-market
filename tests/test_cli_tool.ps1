@@ -55,7 +55,10 @@ try {
   Invoke-Market @('installed','--tool','claude','--bogus') 1 | Out-Null
   $backupHome = $env:MARKET_HOME
   $env:MARKET_HOME = Join-Path $env:USERPROFILE '.claude/skills'
-  try { if ((Invoke-Market @('install','prd-table-ronde','--tool','claude','--force') 1) -notmatch 'Sauvegarde interdite') { throw 'Sauvegarde dans le dossier client acceptée.' } }
+  try {
+    if ((Invoke-Market @('install','prd-table-ronde','--tool','claude','--force') 1) -notmatch 'Sauvegarde interdite') { throw 'Sauvegarde dans le dossier client acceptée.' }
+    if ((Invoke-Market @('install','prd-table-ronde','--force') 1) -notmatch 'Sauvegarde interdite') { throw 'Sauvegarde sans client dans le dossier client acceptée.' }
+  }
   finally { $env:MARKET_HOME = $backupHome }
   Invoke-Market @('remove','prd-table-ronde','--tool','claude') | Out-Null
   Write-Output 'OK: client claude, sauvegarde, refus, options et suppression.'
