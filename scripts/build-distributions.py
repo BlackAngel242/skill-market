@@ -80,8 +80,14 @@ def main():
         index = json.loads((root / "index.json").read_text(encoding="utf-8"))
         for entry in index["skills"]:
             files = packager.content(root / entry["path"])
-            packager.write_zip(root / "dist" / "skills" / f"{entry['name']}.zip",
-                               [(f"{entry['name']}/{name}", data) for name, data in files])
+            # L'import Claude refuse aussi un nom réservé : dossier et `name:` du SKILL.md suivent le nom de plugin.
+            alias = PLUGIN_NAMES.get(entry["name"], entry["name"])
+            if alias != entry["name"]:
+                files = [(name, data.replace(f"name: {entry['name']}\n".encode(), f"name: {alias}\n".encode(), 1)
+                          .replace(f"name: {entry['name']}\r\n".encode(), f"name: {alias}\r\n".encode(), 1)
+                          if name == "SKILL.md" else data) for name, data in files]
+            packager.write_zip(root / "dist" / "skills" / f"{alias}.zip",
+                               [(f"{alias}/{name}", data) for name, data in files])
     return 0
 
 
