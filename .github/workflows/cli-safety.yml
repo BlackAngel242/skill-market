@@ -63,7 +63,7 @@ jobs:
     # macOS livre bash 3.2 dans /bin/bash : vérifie que le CLI n'exige pas bash >= 4.4.
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Force /bin/bash (3.2) for every bash call
         run: |
           mkdir -p "$RUNNER_TEMP/bash32"
