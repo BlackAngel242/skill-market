@@ -34,6 +34,7 @@ jobs:
           bash tests/security-cli-inputs.sh
           bash tests/test_cli_install.sh
           bash tests/test_cli_arguments.sh
+          bash tests/test_cli_tool.sh
           bash cli/market list > /dev/null
       - name: PowerShell 7 - parse and path handling
         if: runner.os == 'Windows'
@@ -43,6 +44,7 @@ jobs:
           ./tests/test_cli_install.ps1
           ./tests/test_cli_zip.ps1
           ./tests/test_cli_arguments.ps1
+          ./tests/test_cli_tool.ps1
           ./cli/market.ps1 list | Out-Null
           if ($LASTEXITCODE) { exit $LASTEXITCODE }
       - name: Windows PowerShell 5.1 - parse and path handling
@@ -53,5 +55,6 @@ jobs:
           ./tests/test_cli_install.ps1
           ./tests/test_cli_zip.ps1
           ./tests/test_cli_arguments.ps1
+          ./tests/test_cli_tool.ps1
           ./cli/market.ps1 list | Out-Null
           if ($LASTEXITCODE) { exit $LASTEXITCODE }

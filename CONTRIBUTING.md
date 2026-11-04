@@ -47,13 +47,20 @@ affiche l'entrée `index.json` à ajouter quand tout passe.
 
 ## 3. Déclare le skill dans `index.json`
 
-Ajoute l'entrée affichée par `market publish` au tableau `skills` de `index.json`.
+Ajoute l'entrée affichée par `market publish` au tableau `skills` de `index.json`, puis régénère le marketplace Claude Code :
+
+```bash
+python scripts/build-distributions.py        # écrit .claude-plugin/marketplace.json
+claude plugin validate .                     # si Claude Code est installé
+```
+
+La CI échoue si `marketplace.json` ne correspond pas à `index.json`. Les archives ZIP des skills sont publiées par le mainteneur en poussant un tag `v*` (workflow `release-zips`).
 
 ## 4. Ouvre une PR
 
 ```bash
 git checkout -b publish/<nom>
-git add skills/<nom> index.json
+git add skills/<nom> index.json .claude-plugin/marketplace.json README.md
 git commit -m "publish: <nom> <version>"
 git push -u origin publish/<nom>
 gh pr create --title "publish: <nom> <version>" --body "Validation \`market publish\` : OK"

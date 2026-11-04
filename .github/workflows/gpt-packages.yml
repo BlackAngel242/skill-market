@@ -7,6 +7,8 @@ on:
       - 'scripts/install-windows.ps1'
       - 'scripts/install-linux-macos.sh'
       - 'scripts/build-chatgpt.py'
+      - 'scripts/build-distributions.py'
+      - '.claude-plugin/**'
       - 'skills/fixit/**'
       - 'skills/prd-table-ronde/**'
       - 'skills/afficheux/**'
@@ -42,6 +44,8 @@ jobs:
         run: node --test tests/installer-gpt.test.mjs
       - name: Test archives
         run: python -m unittest discover -s tests -p 'test_*.py'
+      - name: Verify Claude Code marketplace matches index.json
+        run: python scripts/build-distributions.py --check
       - name: Verify original skills mirrored in plugin
         run: python scripts/build-chatgpt.py --check
       - name: Build GPT ZIP files

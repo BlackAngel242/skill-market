@@ -1,0 +1,32 @@
+name: Release skill ZIPs
+# Publie une archive par skill (import manuel dans Claude desktop/web ou ChatGPT) à chaque tag v*.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag de release existant ou à créer
+        required: true
+permissions:
+  contents: write
+jobs:
+  zips:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Build and check
+        run: |
+          python scripts/build-distributions.py --check
+          python scripts/build-distributions.py --zips
+          python scripts/build-chatgpt.py
+      - name: Publish release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "Archives des skills : une par skill (dossier <nom>/ à la racine), plus les ZIP ChatGPT de Fixit, PRD Table Ronde et AfficheUX."
+          gh release upload "$TAG" dist/skills/*.zip dist/*.zip --clobber

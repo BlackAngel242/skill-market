@@ -19,6 +19,7 @@
   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
   MARKET_BRANCH  branche (défaut : main)
   MARKET_HOME    dossier d'installation (défaut : $HOME\.skill-market)
+  MARKET_TOOL    client : claude, codex, cursor ou agents
   ASSUME_YES=1   répond oui à toutes les questions (équivaut à -y)
 
 .EXEMPLE
@@ -29,7 +30,8 @@ param(
   [string]$Arg1 = "",
   [string]$Arg2 = "",
   [Parameter(ValueFromRemainingArguments=$true)][string[]]$ExtraArgs,
-  [switch]$Force
+  [switch]$Force,
+  [string]$Tool = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -37,7 +39,29 @@ $ErrorActionPreference = "Stop"
 $Repo       = if ($env:MARKET_REPO)   { $env:MARKET_REPO }   else { "BlackAngel242/skill-market" }
 $Branch     = if ($env:MARKET_BRANCH) { $env:MARKET_BRANCH } else { "main" }
 $MarketHome = if ($env:MARKET_HOME)   { $env:MARKET_HOME }   else { Join-Path $HOME ".skill-market" }
-$SkillsDir  = Join-Path $MarketHome "skills"
+$client = if ($Tool) { $Tool } else { $env:MARKET_TOOL }
+$rawArgs = @($Arg1, $Arg2) + @($ExtraArgs)
+$remaining = [System.Collections.Generic.List[string]]::new()
+for ($i = 0; $i -lt $rawArgs.Count; $i++) {
+  if (-not $rawArgs[$i]) { continue }
+  if ($rawArgs[$i] -eq '--tool') {
+    $i++
+    if ($i -ge $rawArgs.Count -or -not $rawArgs[$i] -or $rawArgs[$i].StartsWith('-')) { throw '--tool exige un client.' }
+    $client = $rawArgs[$i]
+  } else { $remaining.Add($rawArgs[$i]) }
+}
+$Arg1 = if ($remaining.Count -gt 0) { $remaining[0] } else { '' }
+$Arg2 = if ($remaining.Count -gt 1) { $remaining[1] } else { '' }
+$ExtraArgs = if ($remaining.Count -gt 2) { @($remaining.ToArray()[2..($remaining.Count-1)]) } else { @() }
+$clientHome = if ($env:OS -eq 'Windows_NT' -and $env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { $HOME }
+$SkillsDir = switch ($client) {
+  { -not $_ } { Join-Path $MarketHome 'skills'; break }
+  { $_ -cin @('claude','codex','cursor','agents') } {
+    $folder = if ($client -eq 'codex') { '.agents' } else { ".$client" }
+    Join-Path (Join-Path $clientHome $folder) 'skills'; break
+  }
+  default { throw "Client inconnu : $client" }
+}
 $IndexUrl   = "https://raw.githubusercontent.com/$Repo/$Branch/index.json"
 $RepoUrl    = "https://github.com/$Repo.git"
 
@@ -155,6 +179,12 @@ function Write-Installed($Name, $Version) {
 
 function Install-Skill($Name, $ReplaceUntracked = $false) {
   if (-not (Test-SafeSkillName $Name)) { throw "Nom de skill invalide." }
+  $backupPath = [IO.Path]::GetFullPath((Join-Path $MarketHome 'backup')).TrimEnd([char[]]'\/')
+  $comparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
+  foreach ($candidate in @('claude','codex','cursor','agents')) {
+    $root = [IO.Path]::GetFullPath((Join-Path (Join-Path $clientHome ".$candidate") 'skills')).TrimEnd([char[]]'\/')
+    if ($backupPath.Equals($root, $comparison) -or $backupPath.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw "Sauvegarde interdite dans un dossier de skills client : $backupPath" }
+  }
   $s = Get-Skill $Name
   if (-not $s) { Write-Host "Skill '$Name' introuvable. Essaie 'market.ps1 list'."; exit 1 }
   $version = $s.version; $path = $s.path
@@ -210,7 +240,7 @@ Usage : market.ps1 <commande> [arguments]
   list                catalogue distant
   search <mot>        recherche dans le catalogue
   info <skill>        fiche d'un skill
-  install <skill> [--force] [-y]  installe en global
+  install <skill> [--tool <client>] [--force] [-y]  installe en global
   upgrade <skill> [--force]  met à jour un skill installé
   update              met à jour tous les skills installés
   remove <skill>      désinstalle
@@ -420,8 +450,9 @@ switch ($Command) {
     }
     Install-Skill $Arg1 $replace
   }
-  "doctor" { exit (Show-Doctor) }
+  "doctor" { if ($Arg1 -or $Arg2 -or $ExtraArgs.Count) { throw 'Option inconnue.' }; exit (Show-Doctor) }
   "update" {
+    if ($Arg1 -or $Arg2 -or $ExtraArgs.Count) { throw 'Option inconnue.' }
     if (-not (Test-Path $SkillsDir)) { Write-Host "Aucun skill installé."; break }
     $idx = Get-Index
     $n = 0; $failed = 0
@@ -441,11 +472,14 @@ switch ($Command) {
   }
   "remove" {
     if (-not $Arg1) { Write-Host "Usage : market.ps1 remove <skill>"; exit 1 }
+    if ($Arg2 -or $ExtraArgs.Count) { throw 'Option inconnue.' }
     if (-not (Test-SafeSkillName $Arg1)) { throw "Nom de skill invalide." }
+    if ($client -and -not (Test-Path -LiteralPath (Join-Path (Join-Path $SkillsDir $Arg1) 'installed.json') -PathType Leaf)) { throw "Skill non suivi par market : $Arg1" }
     Remove-Item (Join-Path $SkillsDir $Arg1) -Recurse -Force
     Write-Host "$Arg1 désinstallé."
   }
   "installed" {
+    if ($Arg1 -or $Arg2 -or $ExtraArgs.Count) { throw 'Option inconnue.' }
     if (-not (Test-Path $SkillsDir)) { Write-Host "Aucun skill installé."; break }
     Get-ChildItem -Path $SkillsDir -Directory | ForEach-Object {
       $metaFile = Join-Path $_.FullName "installed.json"
