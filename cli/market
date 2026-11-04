@@ -17,7 +17,7 @@
 #   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
 #   MARKET_BRANCH  branche (défaut : main)
 #   MARKET_HOME    dossier d'installation (défaut : ~/.skill-market)
-#   MARKET_TOOL    client : claude, codex, cursor ou agents
+#   MARKET_TOOL    client : claude, codex, cursor, gemini ou agents
 #
 set -euo pipefail
 
@@ -36,7 +36,7 @@ set -- "$command" ${args[@]+"${args[@]}"}
 case "$TOOL" in
   '') SKILLS_DIR="$MARKET_HOME/skills" ;;
   codex|agents) SKILLS_DIR="$HOME/.agents/skills" ;;
-  claude|cursor) SKILLS_DIR="$HOME/.$TOOL/skills" ;;
+  claude|cursor|gemini) SKILLS_DIR="$HOME/.$TOOL/skills" ;;
   *) echo "Client inconnu : $TOOL" >&2; exit 1 ;;
 esac
 INDEX_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}/index.json"
@@ -208,7 +208,7 @@ do_install() {
   need_python
   if ! py_run -c 'import os,sys
 home,backup=map(os.path.realpath,sys.argv[1:])
-for client in ("claude","codex","cursor","agents"):
+for client in ("claude","codex","cursor","gemini","agents"):
  root=os.path.normcase(os.path.join(home,"."+client,"skills")); dest=os.path.normcase(backup)
  try: inside=os.path.commonpath((root,dest)) == root
  except ValueError: inside=False

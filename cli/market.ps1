@@ -19,7 +19,7 @@
   MARKET_REPO    dépôt GitHub (défaut : BlackAngel242/skill-market)
   MARKET_BRANCH  branche (défaut : main)
   MARKET_HOME    dossier d'installation (défaut : $HOME\.skill-market)
-  MARKET_TOOL    client : claude, codex, cursor ou agents
+  MARKET_TOOL    client : claude, codex, cursor, gemini ou agents
   ASSUME_YES=1   répond oui à toutes les questions (équivaut à -y)
 
 .EXEMPLE
@@ -56,7 +56,7 @@ $ExtraArgs = if ($remaining.Count -gt 2) { @($remaining.ToArray()[2..($remaining
 $clientHome = if ($env:OS -eq 'Windows_NT' -and $env:USERPROFILE) { $env:USERPROFILE } elseif ($env:HOME) { $env:HOME } else { $HOME }
 $SkillsDir = switch ($client) {
   { -not $_ } { Join-Path $MarketHome 'skills'; break }
-  { $_ -cin @('claude','codex','cursor','agents') } {
+  { $_ -cin @('claude','codex','cursor','gemini','agents') } {
     $folder = if ($client -eq 'codex') { '.agents' } else { ".$client" }
     Join-Path (Join-Path $clientHome $folder) 'skills'; break
   }
@@ -181,7 +181,7 @@ function Install-Skill($Name, $ReplaceUntracked = $false) {
   if (-not (Test-SafeSkillName $Name)) { throw "Nom de skill invalide." }
   $backupPath = [IO.Path]::GetFullPath((Join-Path $MarketHome 'backup')).TrimEnd([char[]]'\/')
   $comparison = if ($env:OS -eq 'Windows_NT') { [StringComparison]::OrdinalIgnoreCase } else { [StringComparison]::Ordinal }
-  foreach ($candidate in @('claude','codex','cursor','agents')) {
+  foreach ($candidate in @('claude','codex','cursor','gemini','agents')) {
     $root = [IO.Path]::GetFullPath((Join-Path (Join-Path $clientHome ".$candidate") 'skills')).TrimEnd([char[]]'\/')
     if ($backupPath.Equals($root, $comparison) -or $backupPath.StartsWith($root + [IO.Path]::DirectorySeparatorChar, $comparison)) { throw "Sauvegarde interdite dans un dossier de skills client : $backupPath" }
   }
