@@ -13,13 +13,13 @@ Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI 
 | Client | Commande ou geste |
 |---|---|
 | **Claude Code** (CLI, desktop, IDE) | `/plugin marketplace add BlackAngel242/skill-market` puis `/plugin install <nom>@blackangel242-skill-market` (ex. `fixit`). Le skill `claude-motion` s'installe sous le nom `motion-kit-whaleyxbt`, car Claude Code réserve le préfixe `claude-`. |
-| **Claude Code, Codex, Cursor et autres agents compatibles Agent Skills** | `market install <nom> --tool claude` (ou `codex`, `cursor`, `agents`) : copie dans le dossier que le client lit, avec détection des outils requis. Ou `npx skills add BlackAngel242/skill-market --skill <nom> -g -y`. |
+| **Claude Code, Codex, Cursor et autres agents compatibles Agent Skills** | `market install <nom> --tool claude` (ou `codex`, `cursor`, `gemini`, `agents`) : copie dans le dossier que le client lit, avec détection des outils requis. Ou `npx skills add BlackAngel242/skill-market --skill <nom> -g -y`. |
 | **Codex (plugin)** | `codex plugin marketplace add BlackAngel242/skill-market` : plugin `drsmoke-quality` (Fixit + PRD Table Ronde). |
 | **Claude desktop / claude.ai** | Télécharger `<nom>.zip` dans la [dernière release](https://github.com/BlackAngel242/skill-market/releases/latest), puis Customize > Skills > + > Create skill > Upload a skill (exécution de code activée). Chemin documenté par Anthropic ; l'import de ces archives n'a pas encore été essayé sur un compte. |
 | **ChatGPT** | Même archive, ou `Fixit-ChatGPT.zip`, `TableRonde-ChatGPT.zip`, `AfficheUX-ChatGPT.zip` de la release, à importer dans un compte compatible. |
 | **N'importe quelle IA avec accès aux fichiers** | Lui donner l'URL du dépôt : chaque skill est un dossier `skills/<nom>/` (`SKILL.md` avec frontmatter `name`/`description`) à copier dans son dossier de skills. `AGENTS.md` lui dit quoi lire d'abord. |
 
-Sans `--tool`, `market install` range le skill dans `~/.skill-market/skills/`, qu'aucun client ne lit : utile pour garder une copie, pas pour l'utiliser. Une ancienne installation dans `~/.codex/skills` n'est plus lue par Codex, qui lit `~/.agents/skills` : réinstalle avec `--tool codex`.
+Sans `--tool`, `market install` range le skill dans `~/.skill-market/skills/`, qu'aucun client ne lit : utile pour garder une copie, pas pour l'utiliser. Une ancienne installation dans `~/.codex/skills` n'est plus lue par Codex, qui lit `~/.agents/skills` : réinstalle avec `--tool codex`. Google Antigravity (`agy`) et Gemini CLI lisent `~/.gemini/skills` : utilise `--tool gemini` (constaté le 04/11 : Antigravity ne lit ni `~/.agents/skills` ni `~/.claude/skills`).
 
 ## Comment ça marche
 

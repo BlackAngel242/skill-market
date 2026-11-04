@@ -40,7 +40,7 @@ try {
   if ($saved.Count -ne 1 -or (Get-Content -LiteralPath $saved[0].FullName) -ne 'local') { throw 'Sauvegarde invalide.' }
   if ($saved[0].FullName.StartsWith((Join-Path $env:USERPROFILE '.claude/skills'), [StringComparison]::OrdinalIgnoreCase)) { throw 'Sauvegarde dans le dossier client.' }
   $env:MARKET_TOOL='claude'; if ((Invoke-Market @('installed')) -notmatch 'prd-table-ronde') { throw 'MARKET_TOOL ignoré.' }; $env:MARKET_TOOL=''
-  foreach ($client in @('codex','cursor','agents')) {
+  foreach ($client in @('codex','cursor','gemini','agents')) {
     $folder = if ($client -eq 'codex') { 'agents' } else { $client }
     $clientDir = Join-Path $env:USERPROFILE ".$folder/skills/demo"
     New-Item -ItemType Directory -Path $clientDir -Force | Out-Null

@@ -25,7 +25,7 @@ saved=$(find "$MARKET_HOME/backup" -name local.txt)
 [ "$(cat "$saved")" = local ]
 case "$saved" in "$HOME/.claude/skills/"*) echo 'KO: sauvegarde dans le dossier client' >&2; exit 1;; esac
 MARKET_TOOL=claude run installed | grep -q prd-table-ronde
-for client in codex cursor agents; do
+for client in codex cursor gemini agents; do
   folder="$client"; [ "$client" != codex ] || folder=agents
   mkdir -p "$HOME/.$folder/skills/demo"
   printf '%s\n' '{"name":"demo","version":"1.0.0"}' > "$HOME/.$folder/skills/demo/installed.json"
