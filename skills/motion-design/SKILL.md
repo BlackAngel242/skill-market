@@ -313,3 +313,6 @@ Select ONE archetype per project. Apply consistently.
 - [state-feedback.md](patterns/state-feedback.md) — Success, error, loading, hover
 - [ambient-continuous.md](patterns/ambient-continuous.md) — Looping, breathing, parallax
 - [multi-element.md](patterns/multi-element.md) — Stagger + choreography recipes
+
+## Direction vidéo (module complémentaire)
+Pour les films motion design, publicités et vidéos narrées, lire `references/direction-video.md` avant les plans : intentions par scène, mouvements motivés, transitions, preuve sur images réellement rendues. Ce module est indépendant du logiciel de création, n'impose aucun moteur et ne remplace pas les règles existantes de motion UI.
