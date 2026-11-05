@@ -30,3 +30,6 @@ Règle centrale : **aucune animation ne commence avant un storyboard validé.** 
 ## Contrôle final
 
 Regarder la vidéo sans le son : l'histoire reste-t-elle compréhensible ? Si oui, le storyboard a fait son travail.
+
+## Beat sheet de production (module complémentaire)
+Pour les projets narrés, lire `references/beat-sheet-video.md` : minutage, voix, visuels, mouvement, musique, raccord, validation avant animation. Recaler les temps après réception de la durée réelle de la voix. Ne pas annoncer l'accord utilisateur avant sa validation explicite.
