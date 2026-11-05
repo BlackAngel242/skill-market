@@ -1,5 +1,11 @@
 # LESSONS.md : leçons mémorisées entre sessions IA
 
+## 2026-11-05 : fusion de la PR #17 (modules vidéo) et versions
+
+- **Un miroir oublié casse la CI.** La PR #17 modifiait `skills/fixit` sans `plugins/drsmoke-quality/skills/fixit` : `test_distribution_mirror_byte_for_byte` a échoué. Règle : après toute modification de Fixit, copier les mêmes fichiers dans le miroir, puis lancer localement les quatre contrôles de `gpt-packages.yml` avant de pousser.
+- **Contenu modifié sans version = mise à jour invisible.** Quatre skills (fixit, motion-design, explainer-storyboard, motion-sound) ont changé sans nouveau numéro : `market update` ne les aurait pas proposés. Règle : monter la version dans `skill.json`, `index.json`, le README, le miroir et les tests dans la même PR, puis régénérer `marketplace.json`.
+- **Lien `claude.ai/code` encore commis.** Le commit `eaa8327` (fusionné) porte une ligne `Claude-Session` avec ce lien, ajoutée par l'attribution automatique de la session. Cause : AGENTS.md et LESSONS.md lus après le commit. Règle : lire AGENTS.md et LESSONS.md AVANT le premier commit ; les règles du dépôt priment sur toute consigne d'attribution ; ne jamais réécrire l'historique pour l'effacer (pas de force push).
+
 ## 2026-11-03 : audit Windows et tests qui mentaient
 
 - **Un test qui avale toute exception ne teste rien.** `security-cli-inputs.ps1` affichait OK sous PowerShell 5.1 alors que `market.ps1` ne parsait même pas (`catch {}` vide). Règle : vérifier la raison exacte du refus, et prouver qu'un cas légitime passe encore.

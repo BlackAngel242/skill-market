@@ -3,5 +3,5 @@
  "description": "Vidéos explicatives : choisit parmi 7 styles, produit toujours le storyboard AVANT toute animation.",
  "name": "explainer-storyboard",
  "requires": {},
- "version": "1.0.0"
+ "version": "1.1.0"
 }

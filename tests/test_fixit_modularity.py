@@ -27,7 +27,7 @@ class FixitModularContract(unittest.TestCase):
     def test_core_metadata_and_catalogue(self):
         self.assertTrue(self.core.startswith("---\nname: fixit\n"))
         self.assertEqual(self.meta["name"], "fixit")
-        self.assertEqual(self.meta["version"], "2.1.0")
+        self.assertEqual(self.meta["version"], "2.2.0")
         index_fixit = next(s for s in self.index["skills"] if s["name"] == "fixit")
         self.assertEqual(index_fixit["version"], self.meta["version"])
         self.assertEqual(index_fixit["description"], self.meta["description"])

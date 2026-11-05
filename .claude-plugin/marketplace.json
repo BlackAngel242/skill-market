@@ -47,7 +47,7 @@
       "name": "fixit",
       "source": "./skills/fixit",
       "description": "Contrôle qualité adaptatif : revue visuelle, critique UX de parcours, technique et contenu, avec preuves, corrections autorisées et réinspection.",
-      "version": "2.1.0",
+      "version": "2.2.0",
       "author": {
         "name": "BlackAngel242"
       }
@@ -128,7 +128,7 @@
       "name": "explainer-storyboard",
       "source": "./skills/explainer-storyboard",
       "description": "Vidéos explicatives : choisit parmi 7 styles, produit toujours le storyboard AVANT toute animation.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "BlackAngel242"
       }
@@ -137,7 +137,7 @@
       "name": "motion-sound",
       "source": "./skills/motion-sound",
       "description": "Sound design des vidéos : choix musical, effets sonores, mixage voix/musique/bruitages, timing.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "BlackAngel242"
       }
@@ -197,7 +197,7 @@
       "name": "motion-design",
       "source": "./skills/motion-design",
       "description": "Principes universels de motion design pour agents : timing, easing, chorégraphie, 12 principes Disney adaptés aux UI.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "LottieFiles"
       },
