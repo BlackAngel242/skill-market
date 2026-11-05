@@ -28,3 +28,6 @@ Caler les transitions visuelles sur les temps forts de la musique (drops, change
 ## Livrable
 
 Plan sonore : choix musical (2-3 propositions), liste des SFX avec timecodes, réglages de mixage, grille rythmique.
+
+## Montage guidé par une voix réelle (module complémentaire)
+Pour voix off, narration et synchronisation, lire `references/voice-first-editing.md`. Vérifier la présence et la lisibilité du fichier audio réel avant tout montage ; l'accès à un connecteur et la disponibilité d'un MP3 local sont deux choses différentes.
