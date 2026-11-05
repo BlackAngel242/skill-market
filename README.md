@@ -164,7 +164,7 @@ Pour qui lance plusieurs agents (Codex, Claude, opencode, agy, omp...) dans [Her
 | `uxfix` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Corrige seul les défauts UI : boucle détecter → corriger → revérifier jusqu'à 99/100 (contrastes, halos, easings, palettes, copy). |
 | `prd-table-ronde` | ![2.2.0](https://img.shields.io/badge/v2.2.0-blue) | Transforme une idée en PRD cadrée via une table ronde d'experts dimensionnée. |
 | `smokekit-ai-workflow-orchestration` | ![4.0.0](https://img.shields.io/badge/v4.0.0-blue) | Orchestration multi-IA auto-évolutive : 20 agents SDLC, router réel avec détection d'outils, boucle d'apprentissage qui ajuste le routing selon tes corrections. |
-| `fixit` | ![2.1.0](https://img.shields.io/badge/v2.1.0-blue) | Contrôle qualité adaptatif : modules visuel, technique, contenu et équipe ; preuves, corrections autorisées, réinspection et apprentissage. |
+| `fixit` | ![2.2.0](https://img.shields.io/badge/v2.2.0-blue) | Contrôle qualité adaptatif : modules visuel, technique, contenu et équipe ; preuves, corrections autorisées, réinspection et apprentissage. |
 | `wassup` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | État des lieux d'un dépôt : compare docs, plans, issues et code réel, signale les désynchronisations et propose les 3 prochaines actions. Mode portefeuille, sortie JSON, contrôles pilotage. |
 | `collect` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Trouve les problèmes d'un projet depuis plusieurs sources et les classe en tickets vérifiés, sans rien modifier. Dry-run par défaut. |
 | `secretscan` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Détecte les secrets committés : fichiers .env, clés API et tokens en dur dans le code, clés privées. Signale sans jamais afficher les valeurs. |
@@ -173,14 +173,14 @@ Pour qui lance plusieurs agents (Codex, Claude, opencode, agy, omp...) dans [Her
 | `motion-graphics` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Graphiques animés : titres, lower thirds, transitions, infographies animées. Familles d'effets et règles de lisibilité. |
 | `rush-cut` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Montage de rushs : plan de coupes (blancs, ratés), animations à ajouter, sous-titres avec timecodes et SRT. |
 | `motion-illustrate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Plans d'illustration calés sur la narration, détourage des sujets, storyboard visuel phrase par phrase. |
-| `explainer-storyboard` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Vidéos explicatives : 7 styles, storyboard toujours produit AVANT toute animation. |
-| `motion-sound` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Sound design : choix musical, effets sonores, mixage, timing calé sur la musique. |
+| `explainer-storyboard` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | Vidéos explicatives : 7 styles, storyboard toujours produit AVANT toute animation. |
+| `motion-sound` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | Sound design : choix musical, effets sonores, mixage, timing calé sur la musique. |
 | `motion-web` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Anime une interface web depuis une phrase : boutons, cartes, transitions. Code CSS/JS propre et performant. |
 | `motion-principles` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Les 12 principes d'animation Disney traduits en règles pratiques pour des animations qui ont l'air humaines. |
 | `product-launch-motion` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | Vidéos de lancement cinématiques générées en code (par AbubakrChan, MIT) : caméra, étalonnage, son calé sur le rythme. |
 | `motion-graphics-skills` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Bundle de 15 skills de motion graphics (par charlie947, MIT) : vidéos de lancement générées en code, sans After Effects. |
 | `claude-motion` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Toolkit motion design (par whaleyxbt, MIT) : 4 skills — design, sound design, review-loop, web-sims. |
-| `motion-design` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Principes universels de motion design pour agents (par LottieFiles, MIT) : timing, easing, 12 principes Disney pour UI. |
+| `motion-design` | ![1.1.0](https://img.shields.io/badge/v1.1.0-blue) | Principes universels de motion design pour agents (par LottieFiles, MIT) : timing, easing, 12 principes Disney pour UI. |
 | `animate` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Animation procédurale en code (par cth9191, MIT) : storyboard d'abord, styles prédéfinis, synchro musicale. |
 | `remotion-motion-graphics` | ![1.0.0](https://img.shields.io/badge/v1.0.0-blue) | Motion graphics avec Remotion (par haidrrrry, MIT) : sous-titres, B-roll et son depuis un seul prompt. |
 | `explainroo` | ![0.4.1](https://img.shields.io/badge/v0.4.1-blue) | Vidéos explicatives et démos produit narrées (par vincentsch, MIT) : voix locale Kokoro dont le français, timing Whisper, dessins canvas calés sur la narration, MP4 + sous-titres. Aucune clé API. |

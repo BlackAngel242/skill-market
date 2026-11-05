@@ -3,5 +3,5 @@
   "description": "Contrôle qualité adaptatif : revue visuelle, critique UX de parcours, technique et contenu, avec preuves, corrections autorisées et réinspection.",
   "name": "fixit",
   "requires": {},
-  "version": "2.1.0"
+  "version": "2.2.0"
 }
