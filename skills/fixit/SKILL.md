@@ -43,3 +43,6 @@ Toujours lire **`references/verification-gate.md`**, qui définit les verdicts e
 ## Sortie
 
 Suivre `references/verification-gate.md` : périmètre et versions, modules/capacités réellement utilisés, preuves, défauts classés, correctifs, recontrôles, limites et verdict parmi **REJETÉ**, **À CORRIGER**, **VALIDÉ SOUS RÉSERVE**, **VALIDÉ**. Rester clair pour un non-technicien et adapter la longueur à la mission.
+
+## Revue vidéo et motion design (module spécialisé)
+Pour MP4, Reel, tutoriel animé ou vidéo narrée, lire `references/revue-video.md` **en complément** des modules visuel et contenu et du gate de vérification. Inspecter le rendu réel, les séquences intermédiaires et les pistes sonores ; une animatique statique n'est pas un film motion design validé. Ne jamais valider une vidéo muette lorsqu'une voix est exigée.
