@@ -4,22 +4,11 @@ Les skills canoniques de Skill Market sont `skills/fixit` (v2.0.0) et `skills/pr
 
 ## Installation sur ordinateur
 
-Télécharger ou cloner le dépôt complet. Sur Windows, double-cliquer sur `Installer Skill Market.bat`, choisir le client et suivre le dialogue. L'installation ne transmet pas de clé API.
-
-Node.js 22 ou plus est requis pour les clients locaux. Sous Windows, l'assistant peut proposer de l'installer via winget, uniquement après confirmation. Sur Linux ou macOS, utiliser `bash scripts/install-linux-macos.sh` (Node 22+ doit être déjà installé).
-
-Exemples pour les utilisateurs avancés :
-
 ```bash
-node scripts/install-skills.mjs --tool codex
-node scripts/install-skills.mjs --tool codex --skill fixit
-node scripts/install-skills.mjs --tool codex --skill prd-table-ronde
-node scripts/install-skills.mjs --tool claude
-node scripts/install-skills.mjs --tool cursor --scope project
-node scripts/install-skills.mjs --tool codex --dry-run
+npx skills add BlackAngel242/skill-market --skill fixit --skill prd-table-ronde
 ```
 
-Par défaut, les skills sont copiés dans le répertoire personnel du client. `--scope project` limite à un projet. `--dir <dossier>` personnalise la destination. Si un skill existe déjà avec un contenu différent, l'installation est refusée sans `--replace` ; ce dernier sauvegarde l'ancienne version dans un dossier frère `.skillmarket-backups/`, hors des répertoires de découverte des skills.
+L'assistant détecte les agents installés (Codex, Claude Code, Cursor…) et demande la portée. Sur Windows, double-cliquer sur `Installer Skill Market.bat` (choix 1) : il propose d'installer Node.js 22+ via winget, uniquement après confirmation, puis lance le même assistant. Sur Linux ou macOS : `bash scripts/install-linux-macos.sh`. L'installation ne transmet pas de clé API.
 
 ## Import dans ChatGPT
 
@@ -48,11 +37,10 @@ Puis installer le plugin **Fixit + Table Ronde** dans le répertoire des plugins
 ## Vérifications
 
 ```bash
-node --test tests/installer-gpt.test.mjs
 python -m unittest discover -s tests -p 'test_gpt_packaging.py'
 python scripts/build-chatgpt.py --check
 ```
 
-Les tests vérifient la prévisualisation, les conflits, les sauvegardes, la copie complète des références et les archives générées. Ils ne constituent pas un test d'import dans un compte ChatGPT.
+Les tests vérifient la copie complète des références et les archives générées. Ils ne constituent pas un test d'import dans un compte ChatGPT.
 
 Documentation : [Skills ChatGPT](https://help.openai.com/fr-fr/articles/20001066-skills-in-chatgpt) ; [Packaging de plugins OpenAI](https://developers.openai.com/plugins/build/plugins).

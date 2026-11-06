@@ -1,15 +1,13 @@
 #Requires -Version 5.1
 <#
 Installateur guidé de Skill Market. Il ne modifie pas le compte ChatGPT.
+Agents locaux : délègue à `npx skills add` (liste à cocher des skills, des agents détectés et de la portée).
 Node.js LTS peut être installé par winget, uniquement avec consentement.
 #>
 [CmdletBinding()]
 param(
-  [string]$Tool = '',
-  [ValidateSet('user','project')][string]$Scope = 'user',
-  [ValidateSet('all','fixit','prd-table-ronde')][string]$Skill = 'all',
+  [ValidateSet('','agents','chatgpt')][string]$Tool = '',
   [switch]$DryRun,
-  [switch]$Replace,
   [switch]$Yes
 )
 $ErrorActionPreference = 'Stop'
@@ -32,14 +30,11 @@ function Python-Command {
 try {
   Write-Host '=== Skill Market — installateur guidé ===' -ForegroundColor Cyan
   if (-not $Tool) {
-    Write-Host '1. Codex (recommandé pour les skills locaux)'
-    Write-Host '2. Claude Code'
-    Write-Host '3. Cursor'
-    Write-Host '4. ChatGPT (préparer des ZIP à importer)'
+    Write-Host '1. Agents locaux : Claude Code, Codex, Cursor, Gemini/Antigravity, OpenCode... (recommandé)'
+    Write-Host '2. ChatGPT (préparer des ZIP à importer)'
     $choice = Read-Host 'Votre choix [1]'
-    $Tool = switch ($choice) { '2' { 'claude' } '3' { 'cursor' } '4' { 'chatgpt' } default { 'codex' } }
+    $Tool = if ($choice -eq '2') { 'chatgpt' } else { 'agents' }
   }
-  if ($Tool -notin @('codex','claude','cursor','chatgpt')) { throw "Cible inconnue : $Tool" }
   if ($Tool -eq 'chatgpt') {
     Write-Host "ChatGPT : le compte n'est pas modifié automatiquement." -ForegroundColor Yellow
     $py = Python-Command
@@ -61,12 +56,12 @@ try {
     $env:Path = [Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [Environment]::GetEnvironmentVariable('Path','User')
     if ((Node-Version) -lt 22) { throw 'Node.js non détecté dans cette session. Ouvrir un nouveau terminal puis relancer.' }
   }
-  $args = @((Join-Path $PSScriptRoot 'install-skills.mjs'), '--tool', $Tool, '--scope', $Scope, '--skill', $Skill)
-  if ($DryRun) { $args += '--dry-run' }
-  if ($Replace) { $args += '--replace' }
-  & node @args
-  if ($LASTEXITCODE -ne 0) { throw "L'installation locale a échoué ($LASTEXITCODE)." }
-  Write-Host 'Terminé.' -ForegroundColor Green
+  # --list en simulation : affiche le catalogue sans rien écrire.
+  $npxArgs = @('-y', 'skills', 'add', 'BlackAngel242/skill-market')
+  if ($DryRun) { $npxArgs += '--list' }
+  & npx @npxArgs
+  if ($LASTEXITCODE -ne 0) { throw "L'installation a échoué ($LASTEXITCODE)." }
+  Write-Host 'Terminé. Relancer ou actualiser le client pour charger les skills.' -ForegroundColor Green
 } catch {
   Write-Error $_.Exception.Message
   exit 1

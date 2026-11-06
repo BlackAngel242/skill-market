@@ -8,12 +8,27 @@ Marketplace de skills pour agents IA. Un catalogue hébergé sur GitHub, un CLI 
 
 ![Démo du CLI market](assets/demo-powershell.gif)
 
+## Installer (recommandé)
+
+```bash
+npx skills add BlackAngel242/skill-market
+```
+
+Une commande, depuis n'importe quel dossier, sans cloner le dépôt : l'assistant [skills](https://github.com/vercel-labs/skills) liste les 25 skills à cocher, détecte les agents installés (Claude Code, Codex, Cursor, Gemini/Antigravity, OpenCode…), demande la portée (globale ou projet) puis installe. Mises à jour : `npx skills check` et `npx skills update`. Sous Windows sans terminal : double-cliquer sur `Installer Skill Market.bat` (il installe Node.js si besoin, puis lance le même assistant).
+
+```bash
+npx skills add BlackAngel242/skill-market --list                 # voir le catalogue
+npx skills add BlackAngel242/skill-market --skill uxfix -g -y    # un skill, global, sans question
+```
+
+`npx skills` copie les fichiers du skill sans vérifier les outils requis (`skill.json` → `requires`) : pour cette vérification, utiliser `market install` (voir plus bas).
+
 ## Intégrer dans ton IA
 
 | Client | Commande ou geste |
 |---|---|
 | **Claude Code** (CLI, desktop, IDE) | `/plugin marketplace add BlackAngel242/skill-market` puis `/plugin install <nom>@blackangel242-skill-market` (ex. `fixit`). Le skill `claude-motion` s'installe sous le nom `motion-kit-whaleyxbt`, car Claude Code réserve le préfixe `claude-`. |
-| **Claude Code, Codex, Cursor et autres agents compatibles Agent Skills** | `market install <nom> --tool claude` (ou `codex`, `cursor`, `gemini`, `agents`) : copie dans le dossier que le client lit, avec détection des outils requis. Ou `npx skills add BlackAngel242/skill-market --skill <nom> -g -y`. |
+| **Claude Code, Codex, Cursor et autres agents compatibles Agent Skills** | `npx skills add BlackAngel242/skill-market` (assistant interactif). Ou `market install <nom> --tool claude` (ou `codex`, `cursor`, `gemini`, `agents`) pour vérifier en plus les outils requis. |
 | **Codex (plugin)** | `codex plugin marketplace add BlackAngel242/skill-market` : plugin `drsmoke-quality` (Fixit + PRD Table Ronde). |
 | **Claude desktop / claude.ai** | Télécharger `<nom>.zip` dans la [dernière release](https://github.com/BlackAngel242/skill-market/releases/latest), puis Customize > Skills > + > Create skill > Upload a skill (exécution de code activée). Chemin documenté par Anthropic ; l'import de ces archives n'a pas encore été essayé sur un compte. `claude-motion` est fourni sous `motion-kit-whaleyxbt.zip` (le mot « claude » est réservé dans les noms de skill). |
 | **ChatGPT** | Même archive, ou `Fixit-ChatGPT.zip`, `TableRonde-ChatGPT.zip`, `AfficheUX-ChatGPT.zip` de la release, à importer dans un compte compatible. |
@@ -33,14 +48,9 @@ flowchart LR
     INST --> UP["<b>market update</b><br/>mises à jour par version"]
 ```
 
-## Installer Fixit et PRD Table Ronde sur GPT / Codex
+## Fixit et PRD Table Ronde sur ChatGPT
 
-Les deux compétences sont déjà dans le dépôt. Un assistant Windows, un installateur local sans réseau et des archives d'import pour ChatGPT sont documentés dans **[Installation GPT et Codex](docs/INSTALLATION-GPT.md)**.
-
-- Windows : double-cliquer sur `Installer Skill Market.bat` depuis le dépôt complet.
-- Codex : `node scripts/install-skills.mjs --tool codex`.
-- ChatGPT : générer `Fixit-ChatGPT.zip` et `TableRonde-ChatGPT.zip` avec `python scripts/build-chatgpt.py`, puis importer les skills dans un compte éligible.
-- Plugin local : `codex plugin marketplace add BlackAngel242/skill-market`.
+Les deux compétences s'installent sur les agents locaux comme les autres (`npx skills add`). Pour ChatGPT, générer `Fixit-ChatGPT.zip` et `TableRonde-ChatGPT.zip` avec `python scripts/build-chatgpt.py`, puis les importer dans un compte éligible : voir **[Installation GPT et Codex](docs/INSTALLATION-GPT.md)**. Plugin Codex : `codex plugin marketplace add BlackAngel242/skill-market`.
 
 Les skills originaux et leurs références restent la source de vérité ; les miroirs du plugin sont contrôlés par la CI.
 
@@ -48,7 +58,7 @@ Les skills originaux et leurs références restent la source de vérité ; les m
 
 Le skill Fixit est maintenant un **orchestrateur** : il choisit les modules pertinents selon le livrable, sans exécuter artificiellement tous les contrôles. Le noyau (`skills/fixit/SKILL.md`) charge toujours `references/verification-gate.md`, puis les modules `revue-visuelle.md`, `revue-technique.md`, `revue-contenu.md` et/ou `revue-equipe.md` selon le risque. Le suivi des leçons est dans `references/memoire-apprentissage.md`. Le guide visuel historique est préservé. Le module optionnel `references/critique-ux.md` complète désormais l'analyse des interfaces et parcours (première impression, navigation, hiérarchie, états, accessibilité et vérité métier), inspiré du skill [design-critique d'Anthropic](https://github.com/anthropics/knowledge-work-plugins/tree/main/design/skills/design-critique). Il ne remplace ni le contrôle du rendu ni les tests Android.
 
-Pour une installation locale déjà présente, **ne pas écraser silencieusement** : utiliser `--replace` après examen des différences ; l'ancienne copie est sauvegardée. Le CLI `market upgrade fixit` reste disponible pour ses installations suivies par le gestionnaire de versions.
+Mise à jour : `npx skills update`, ou `market upgrade fixit` pour une installation suivie par `market`.
 
 ## Installer le CLI
 
@@ -73,25 +83,12 @@ powershell -ExecutionPolicy Bypass -File .\market.ps1 install uxfix
 
 Fonctionne avec Windows PowerShell 5.1 (`powershell`, présent sur tout Windows 10/11) et PowerShell 7 (`pwsh`) ; la CI teste les deux. Toutes les commandes sont identiques : `list`, `search`, `info`, `install`, `upgrade`, `update`, `remove`, `installed`, `doctor`, `publish`.
 
-## Alternative : installer via `npx skills add`
-
-Pas besoin du CLI `market` : le dépôt est compatible avec le gestionnaire de skills de Vercel Labs.
-
-```bash
-npx skills add BlackAngel242/skill-market --list          # voir les skills dispo
-npx skills add BlackAngel242/skill-market --skill uxfix -g -y   # installer un skill (global)
-npx skills add BlackAngel242/skill-market --all -g -y            # tout installer
-```
-
-Note : via `npx skills add`, seuls les fichiers du skill sont copiés. La détection et l'installation automatique des outils requis (`skill.json` → `requires`) reste l'exclusivité de `market install`.
-
 ## Quel parcours d'installation choisir
 
 | Parcours | Destination | Pour quoi |
 |---|---|---|
-| `market install <nom>` | `~/.skill-market/skills/<nom>` (`MARKET_HOME`) | catalogue complet, détection des outils requis, mises à jour par version |
-| `npx skills add ...` | dossier de skills du client choisi | copie simple, sans contrôle des prérequis |
-| `node scripts/install-skills.mjs --tool <client>` | `.agents/skills` (Codex), `.claude/skills` ou `.cursor/skills` | Fixit et PRD Table Ronde seulement, sans réseau, `--replace` avec sauvegarde |
+| `npx skills add BlackAngel242/skill-market` (recommandé) | dossiers de skills des agents cochés | assistant interactif, plusieurs agents à la fois, `npx skills update` |
+| `market install <nom> --tool <client>` | dossier de skills du client (`~/.skill-market/skills/` sans `--tool`) | détection des outils requis, mises à jour par version |
 | `python scripts/build-chatgpt.py` | `dist/*.zip` | import manuel dans un compte ChatGPT compatible |
 
 Un skill copié sur le disque n'est pas forcément découvert par ton client : vérifie qu'il apparaît dans la liste des skills du client.
