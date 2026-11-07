@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 <#
 Installateur guidé de Skill Market. Il ne modifie pas le compte ChatGPT.
 Agents locaux : délègue à `npx skills add` (liste à cocher des skills, des agents détectés et de la portée).
