@@ -5,7 +5,8 @@
 # Réponse acceptée seulement si sa dernière ligne non vide est
 #   <!-- herdr:complete id=<id> status=ok|error -->
 # Codes: 0 ok, 1 timeout (verrou conservé), 2 agent occupé, 3 status=error,
-#        4 renommage impossible, 5 usage ou agent inconnu.
+#        4 renommage impossible, 5 usage ou agent inconnu,
+#        6 pause de quota de l'agent (limite d'usage atteinte, verrou conservé).
 # Ne pas modifier ce fichier pendant qu'une instance tourne : bash le lit au fil de l'exécution.
 set -euo pipefail
 
@@ -59,12 +60,32 @@ if ! herdr agent prompt "$agent" "${read_first}Lis la tâche dans $wq et exécut
   echo "avertissement: envoi non confirmé pour $agent, j'attends la sentinelle jusqu'au délai" >&2
 fi
 
+# Pause de quota (même détection que MyTeam, src/terminal-status.mjs) : seulement quand l'agent ne travaille plus,
+# et seulement dans le bas de son écran, pour ne pas confondre avec un agent qui lit ou écrit ces phrases.
+quota() {
+  local etat ligne
+  etat=$(herdr agent get "$agent" 2>/dev/null | grep -o '"agent_status":"[a-z]*"' | cut -d'"' -f4 || true)
+  case $etat in idle|done|blocked) ;; *) return 1 ;; esac
+  ligne=$(herdr agent read "$agent" --source detection --lines 12 2>/dev/null \
+    | grep -iE "hit (your |the )?(usage|session|rate)[^\"]{0,40}limit|limit (has been )?reached|usage limit reached" | tail -n 1 || true)
+  [ -n "$ligne" ] && printf '%s' "$ligne" | tr -d '\r'
+}
+next_quota=$((SECONDS + 30))
+
 while :; do
   if complete "$resp"; then break; fi
   if complete "$tmp"; then
     if promote || complete "$resp"; then break; fi
     echo "échec du renommage de $wt (le .tmp reste lisible)" >&2
     exit 4
+  fi
+  if [ $SECONDS -ge $next_quota ]; then
+    next_quota=$((SECONDS + 30))
+    if limite=$(quota); then
+      keep=1
+      echo "pause de quota: $agent a atteint sa limite d'usage ($limite). Tâche $id non terminée, verrou conservé. Relais : SKILL.md, section « Pause de quota »." >&2
+      exit 6
+    fi
   fi
   if [ $SECONDS -ge $deadline ]; then
     keep=1
