@@ -62,6 +62,19 @@ Protocole complet : `references/apprentissage.md`. En bref :
 - `3` : l'agent a écrit `status=error` ; lire sa réponse et le dire à l'utilisateur.
 - `4` : renommage impossible ; le `.response.tmp.md` reste lisible.
 - `5` : usage invalide ou agent inconnu (souvent : agent non nommé).
+- `6` : pause de quota — l'agent a atteint sa limite d'usage (« You've hit your usage limit · try again at 5:42 AM ») ; tâche non terminée, verrou **conservé**. Appliquer « Pause de quota : relais ».
+
+## Pause de quota : relais
+
+Même règle que MyTeam (`src/relais-quota.mjs`, désactivable dans le bureau par `BUREAU_RELAIS_QUOTA=0`) : une mission ne reste pas bloquée pendant qu'un agent attend la fin de sa limite.
+`herdr-ask` vérifie toutes les 30 secondes, et seulement quand l'agent ne travaille plus (`idle`, `done`, `blocked`), le bas de son écran (`--source detection`, 12 lignes) : un agent qui lit ou écrit ces phrases n'est pas confondu avec un agent bloqué.
+
+1. **Constater** : `herdr agent read <agent> --source visible` (message et heure de retour) ; noter l'heure dans `EQUIPE.md` si elle se répète.
+2. **Relever l'état** (L-33) : `git status`, `git log`, diff non commité du worktree de l'agent, et `<id>.response.tmp.md` s'il existe. Ce qui est commité reste acquis.
+3. **Choisir un suppléant** : libre (pas de verrou), même projet, jamais le chef, et de préférence **un autre outil** (un second agent du même outil partage souvent le même compte, donc la même limite). Respecter ses forces (`EQUIPE.md`) et le dire s'il sort de son registre.
+4. **Briefer la reprise** : la mission d'origine (le `quest.md`), l'état relevé, la consigne de lire l'écran de l'agent en pause, et la règle « un fichier = un propriétaire ». Le propriétaire des fichiers passe au suppléant pour ce lot.
+5. **Libérer l'agent en pause** : arrêter l'attente `herdr-ask`, puis `--unlock` après les trois contrôles ci-dessous (écran = limite affichée, propriétaire = cette tâche, aucune réponse en cours).
+6. **À son retour** : lui dire que sa mission a été reprise par le suppléant ; il ne la recommence pas et attend la prochaine consigne.
 
 ## Déverrouiller (`herdr-ask --unlock <agent>`)
 
