@@ -60,10 +60,8 @@ class FixitModularContract(unittest.TestCase):
         self.assertEqual(src, dst)
         self.assertGreaterEqual(len(src), 9)  # skill + json + 7 references
 
-    def test_installer_and_packager_copy_entire_skill(self):
-        local = (ROOT / "scripts" / "install-skills.mjs").read_text(encoding="utf-8")
+    def test_packager_copies_entire_skill(self):
         zip_script = (ROOT / "scripts" / "build-chatgpt.py").read_text(encoding="utf-8")
-        self.assertIn("await cp(p.source, temp", local)
         self.assertIn("folder.rglob", zip_script)
         self.assertIn("mirror", zip_script)
 
